@@ -50,4 +50,6 @@ private:
 
 
 	TestClass* testClass = nullptr;
+
+	Particle* particle = nullptr;
 };

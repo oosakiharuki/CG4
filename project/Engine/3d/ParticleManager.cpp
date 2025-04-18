@@ -121,7 +121,7 @@ std::list<Particles> ParticleManager::GetParticle(const std::string filePath) {
 
 
 
-void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count) {
+void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count, ParticleType type) {
 	ParticleGroup& particleG = particleGroups[name];
 
 
@@ -132,7 +132,7 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 	std::random_device seedGenerator;
 	std::mt19937 randomEngine(seedGenerator());
 
-	particleG.particles = particleEmit.MakeEmit(emitter, randomEngine);
+	particleG.particles = particleEmit.MakeEmit(emitter, randomEngine,type);
 	//emitter.frequencyTime -= emitter.frequency;
 	
 }

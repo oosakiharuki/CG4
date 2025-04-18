@@ -20,6 +20,14 @@ void GameScene::Initialize() {
 
  	testClass = new TestClass();
  	testClass->Init();
+
+
+
+	ParticleManager::GetInstance()->CreateParticleGroup("plane", "resource/Sprite/circle.png");
+
+	particle = new Particle();
+	particle->Initialize(ParticleCommon::GetInstance(),"plane");
+
 }
 
 void GameScene::Update() {
@@ -37,6 +45,9 @@ void GameScene::Update() {
 	}
 
 	testClass->Update();
+
+	particle->Update();
+
 
 	camera->Update();
 
@@ -77,8 +88,7 @@ void GameScene::Draw() {
 	//パーティクル描画処理
 	ParticleCommon::GetInstance()->Command();
 
-	//particle->Draw();
-	//particle2->Draw();
+	particle->Draw();
 
 	//スプライト描画処理(UI用)
 	SpriteCommon::GetInstance()->Command();
@@ -88,4 +98,5 @@ void GameScene::Draw() {
 void GameScene::Finalize() {	
 	delete camera;
 	delete testClass;
+	delete particle;
 }

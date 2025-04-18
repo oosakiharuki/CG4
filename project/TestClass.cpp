@@ -43,6 +43,8 @@ void TestClass::Update() {
 
 	object_->LightSwitch(onLight);
 
+	worldTransform_.translation_.y = -2.0f;
+
 	worldTransform_.UpdateMatrix();
 }
 

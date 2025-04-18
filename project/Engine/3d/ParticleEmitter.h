@@ -15,7 +15,9 @@ public:
 	}
 
 	Particles MakeNewParticle(std::mt19937& randomEngine, const Vector3& translate);
-	std::list<Particles> MakeEmit(const Emitter& emitter, std::mt19937& randomEngine);
+	Particles MakeNewParticlePlane(std::mt19937& randomEngine, const Vector3& translate);
+
+	std::list<Particles> MakeEmit(const Emitter& emitter, std::mt19937& randomEngine,ParticleType Type);
 private:
 	Emitter emitter{};
 };
