@@ -33,6 +33,7 @@ struct AccelerationField {
 enum class ParticleType {
 	Normal,
 	Plane,
+	Ring
 };
 
 

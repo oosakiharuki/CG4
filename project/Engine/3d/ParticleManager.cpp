@@ -1,6 +1,7 @@
 #include "ParticleManager.h"
 #include "ModelManager.h"
 #include <cassert>
+#include <numbers>
 
 using namespace MyMath;
 
@@ -44,12 +45,53 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleG.textureFile = textureFilePath;
 
 	//仮のモデル
-	particleG.modelData.vertices.push_back({ {1.0f,1.0f,0.0f,1.0f},{0.0f,0.0f},{0.0f,0.0f,1.0f} });
-	particleG.modelData.vertices.push_back({ {-1.0f,1.0f,0.0f,1.0f},{1.0f,0.0f},{0.0f,0.0f,1.0f} });
-	particleG.modelData.vertices.push_back({ {1.0f,-1.0f,0.0f,1.0f},{0.0f,1.0f},{0.0f,0.0f,1.0f} });
-	particleG.modelData.vertices.push_back({ {1.0f,-1.0f,0.0f,1.0f},{0.0f,1.0f},{0.0f,0.0f,1.0f} });
-	particleG.modelData.vertices.push_back({ {-1.0f,1.0f,0.0f,1.0f},{1.0f,0.0f},{0.0f,0.0f,1.0f} });
-	particleG.modelData.vertices.push_back({ {-1.0f,-1.0f,0.0f,1.0f},{1.0f,1.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {1.0f,1.0f,0.0f,1.0f},{0.0f,0.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {-1.0f,1.0f,0.0f,1.0f},{1.0f,0.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {1.0f,-1.0f,0.0f,1.0f},{0.0f,1.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {1.0f,-1.0f,0.0f,1.0f},{0.0f,1.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {-1.0f,1.0f,0.0f,1.0f},{1.0f,0.0f},{0.0f,0.0f,1.0f} });
+	//particleG.modelData.vertices.push_back({ {-1.0f,-1.0f,0.0f,1.0f},{1.0f,1.0f},{0.0f,0.0f,1.0f} });
+
+
+	const uint32_t kRingDivide = 32;
+	const float kOuterRadius = 1.0f;
+	const float kInnerRadius = 0.2f;
+	const float radianPreDevice = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+
+	for (uint32_t index = 0; index < kRingDivide; ++index) {
+		float sin = std::sin(index * radianPreDevice);
+		float cos = std::cos(index * radianPreDevice);
+
+		float sinNext = std::sin((index + 1) * radianPreDevice); // ベジェ曲線のイメージ
+		float cosNext = std::cos((index + 1) * radianPreDevice);
+
+		float u = float(index) / float(kRingDivide);
+		float uNext = float(index + 1) / float(kRingDivide);
+
+		VertexData vertexData1, vertexData2, vertexData3, vertexData4;
+
+		vertexData1.position = { -sin * kOuterRadius, cos * kOuterRadius,0.0f,1.0f };
+		vertexData1.texcoord = { u,0.0f };
+
+		vertexData2.position = { -sinNext * kOuterRadius, cosNext * kOuterRadius, 0.0f,1.0f };
+		vertexData2.texcoord = { uNext,0.0f };
+
+		vertexData3.position = { -sin * kInnerRadius, cos * kInnerRadius, 0.0f,1.0f };
+		vertexData3.texcoord = { u,1.0f };
+
+		vertexData4.position = { -sinNext * kInnerRadius, cosNext * kInnerRadius, 0.0f,1.0f };
+		vertexData4.texcoord = { uNext,1.0f };
+
+
+		particleG.modelData.vertices.push_back(vertexData1);
+		particleG.modelData.vertices.push_back(vertexData2);
+		particleG.modelData.vertices.push_back(vertexData3);
+
+		particleG.modelData.vertices.push_back(vertexData3);
+		particleG.modelData.vertices.push_back(vertexData2);
+		particleG.modelData.vertices.push_back(vertexData4);
+
+	}
 
 	particleG.modelData.material.textureFilePath = textureFilePath;
 
@@ -70,7 +112,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleG.srvIndex = srvManager->Allocate();
 	particleG.srvHandleCPU = srvManager->GetCPUDescriptorHandle(particleG.srvIndex);
 	particleG.srvHandleGPU = srvManager->GetGPUDescriptorHandle(particleG.srvIndex);
-	
+
 
 	//SRVの生成
 	particleCommon->GetDxCommon()->GetDevice()->CreateShaderResourceView(particleG.resource.Get(), &srvDesc, particleG.srvHandleCPU);

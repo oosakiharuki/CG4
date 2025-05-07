@@ -82,7 +82,7 @@ void Particle::Update() {
 	const float kDeltaTime = 1.0f / 60.0f;
 	emitter.frequencyTime += kDeltaTime;
 
-	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count,ParticleType::Plane);
+	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count,ParticleType::Ring);
 
 	if (emitter.frequency <= emitter.frequencyTime) {
 		particles.splice(particles.end(), ParticleManager::GetInstance()->GetParticle(fileName));
@@ -128,7 +128,7 @@ void Particle::Update() {
 		billboardMatrix.m[3][2] = 0.0f;
 
 
-		Matrix4x4 worldMatrix = Multiply(scaleMatrix, Multiply(billboardMatrix, translateMatrix));
+		Matrix4x4 worldMatrix = Multiply(scaleMatrix, Multiply(rotateXYZ, translateMatrix));
 		//Matrix4x4 worldMatrix = Multiply(billboardMatrix, MakeAffineMatrix((*particleIterator).transform.scale, (*particleIterator).transform.rotate, (*particleIterator).transform.translate));
 
 
