@@ -74,38 +74,25 @@ void Particle::Initialize(ParticleCommon* ParticleCommon, const std::string& fil
 	accelerationField.acceleration = { 0.0f,15.0f,0.0f };
 	accelerationField.area.min = { -1.0f,-1.0f,-1.0f };
 	accelerationField.area.max = { 1.0f,1.0f,1.0f };
+
+	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count, ParticleType::Cylinder);
+	particles.splice(particles.end(), ParticleManager::GetInstance()->GetParticle(fileName));
 }
 
 void Particle::Update() {
 
 
 	const float kDeltaTime = 1.0f / 60.0f;
-	emitter.frequencyTime += kDeltaTime;
-
-	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count,ParticleType::Ring);
-
-	if (emitter.frequency <= emitter.frequencyTime) {
-		particles.splice(particles.end(), ParticleManager::GetInstance()->GetParticle(fileName));
-		emitter.frequencyTime -= emitter.frequency;
-	}
 
 	numInstance = 0;
 	for (std::list<Particles>::iterator particleIterator = particles.begin();
 		particleIterator != particles.end(); ) {
 
-		if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
-			particleIterator = particles.erase(particleIterator);
-			continue;
-		}
-
-		const float kDeltaTime = 1.0f / 60.0f;
-		float alpha = 1.0f - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
-
 		if (IsCollision(accelerationField.area, (*particleIterator).transform.translate)) {
 			//(*particleIterator).velocity += accelerationField.acceleration * kDeltaTime;
 		}
 
-		(*particleIterator).transform.translate += (*particleIterator).velocity * kDeltaTime;
+		(*particleIterator).transform.rotate += (*particleIterator).velocity * kDeltaTime;
 
 		(*particleIterator).currentTime += kDeltaTime;
 
@@ -145,7 +132,7 @@ void Particle::Update() {
 		wvpData[numInstance].World = worldMatrix;
 
 		wvpData[numInstance].color = (*particleIterator).color;
-		wvpData[numInstance].color.s = alpha;
+		//wvpData[numInstance].color.s = alpha;
 
 		if (numInstance < kNumMaxInstance) {
 			wvpData[numInstance].WVP = WorldViewProjectionMatrix;

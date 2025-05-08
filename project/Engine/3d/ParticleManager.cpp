@@ -53,34 +53,47 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	//particleG.modelData.vertices.push_back({ {-1.0f,-1.0f,0.0f,1.0f},{1.0f,1.0f},{0.0f,0.0f,1.0f} });
 
 
-	const uint32_t kRingDivide = 32;
-	const float kOuterRadius = 1.0f;
-	const float kInnerRadius = 0.2f;
-	const float radianPreDevice = 2.0f * std::numbers::pi_v<float> / float(kRingDivide);
+	const uint32_t kCylinderDivide = 32;
+	const float kTopRadius = 1.0f;
+	const float kBottomRadius = 1.0f;
+	const float kHeight = 3.0f;
+	const float radianPreDevice = 2.0f * std::numbers::pi_v<float> / float(kCylinderDivide);
 
-	for (uint32_t index = 0; index < kRingDivide; ++index) {
+	for (uint32_t index = 0; index < kCylinderDivide; ++index) {
 		float sin = std::sin(index * radianPreDevice);
 		float cos = std::cos(index * radianPreDevice);
 
 		float sinNext = std::sin((index + 1) * radianPreDevice); // ベジェ曲線のイメージ
 		float cosNext = std::cos((index + 1) * radianPreDevice);
 
-		float u = float(index) / float(kRingDivide);
-		float uNext = float(index + 1) / float(kRingDivide);
+		float u = float(index) / float(kCylinderDivide);
+		float uNext = float(index + 1) / float(kCylinderDivide);
 
-		VertexData vertexData1, vertexData2, vertexData3, vertexData4;
+		VertexData vertexData1, vertexData2, vertexData3, vertexData4, vertexData5, vertexData6;
 
-		vertexData1.position = { -sin * kOuterRadius, cos * kOuterRadius,0.0f,1.0f };
+		vertexData1.position = { -sin * kTopRadius,kHeight, cos * kTopRadius,1.0f };
 		vertexData1.texcoord = { u,0.0f };
+		vertexData1.normal = { -sin,0.0f,cos };
 
-		vertexData2.position = { -sinNext * kOuterRadius, cosNext * kOuterRadius, 0.0f,1.0f };
+		vertexData2.position = { -sinNext * kTopRadius,kHeight, cosNext * kTopRadius,1.0f };
 		vertexData2.texcoord = { uNext,0.0f };
+		vertexData2.normal = { -sinNext,0.0f,cosNext };
 
-		vertexData3.position = { -sin * kInnerRadius, cos * kInnerRadius, 0.0f,1.0f };
+		vertexData3.position = { -sin * kBottomRadius,0.0f, cos * kBottomRadius,1.0f };
 		vertexData3.texcoord = { u,1.0f };
+		vertexData3.normal = { -sin,0.0f,cos };
 
-		vertexData4.position = { -sinNext * kInnerRadius, cosNext * kInnerRadius, 0.0f,1.0f };
-		vertexData4.texcoord = { uNext,1.0f };
+		vertexData4.position = { -sin * kBottomRadius,0.0f, cos * kBottomRadius,1.0f };
+		vertexData4.texcoord = { u,1.0f };
+		vertexData4.normal = { -sin,0.0f,cos };
+
+		vertexData5.position = { -sinNext * kTopRadius,kHeight, cosNext * kTopRadius,1.0f };
+		vertexData5.texcoord = { uNext,0.0f };
+		vertexData5.normal = { -sinNext,0.0f,cosNext };
+		
+		vertexData6.position = { -sinNext * kBottomRadius,0.0f, cosNext * kBottomRadius,1.0f };
+		vertexData6.texcoord = { uNext,1.0f };
+		vertexData6.normal = { -sinNext,0.0f,cosNext };
 
 
 		particleG.modelData.vertices.push_back(vertexData1);
@@ -89,7 +102,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 		particleG.modelData.vertices.push_back(vertexData3);
 		particleG.modelData.vertices.push_back(vertexData2);
-		particleG.modelData.vertices.push_back(vertexData4);
+		particleG.modelData.vertices.push_back(vertexData6);
 
 	}
 
