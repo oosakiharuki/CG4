@@ -66,7 +66,7 @@ void Particle::Initialize(ParticleCommon* ParticleCommon, const std::string& fil
 	emitter.transform.translate = { 0.0f,0.0f,0.0f };
 	emitter.transform.rotate = { 0.0f,0.0f,0.0f };
 	emitter.transform.scale = { 1.0f,1.0f,1.0f };
-	emitter.count = 3;
+	emitter.count = 30;
 	emitter.frequency = 0.5f;
 	emitter.frequencyTime = 0.0f;
 
