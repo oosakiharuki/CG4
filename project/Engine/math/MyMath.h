@@ -13,70 +13,77 @@
 #include <string>
 	
 //model
-	struct MaterialData {
-		std::string textureFilePath;
-		uint32_t textureIndex;
-	};
+struct MaterialData {
+	std::string textureFilePath;
+	uint32_t textureIndex;
+};
 
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
+struct VertexData {
+	Vector4 position;
+	Vector2 texcoord;
+	Vector3 normal;
+};
 
-	struct ModelData {
-		std::vector<VertexData> vertices;
-		MaterialData material;
-	};
+struct Node {
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node> children;
+};
 
-	struct Material {
-		Vector4 color;
-		int32_t enableLighting;
-		float padding[3];
-		Matrix4x4 uvTransform;
-		float shininess;
-	};
+struct ModelData {
+	std::vector<VertexData> vertices;
+	MaterialData material;
+	Node rootNode;
+};
 
-	struct DirectionalLight {
-		Vector4 color;
-		Vector3 direction;
-		float intensity;
-	};
+struct Material {
+	Vector4 color;
+	int32_t enableLighting;
+	float padding[3];
+	Matrix4x4 uvTransform;
+	float shininess;
+};
 
-	struct CameraForGPU {
-		Vector3 worldPosition;
-	};
+struct DirectionalLight {
+	Vector4 color;
+	Vector3 direction;
+	float intensity;
+};
 
-	struct PointLight {
-		Vector4 color;
-		Vector3 position;
-		float intensity;
-		float radius;
-		float decay;
-		float padding[2];
-	};
+struct CameraForGPU {
+	Vector3 worldPosition;
+};
 
-	struct SpotLight {
-		Vector4 color;
-		Vector3 position;
-		float intensity;
-		Vector3 direction;
-		float distance;
-		float decay;
-		float cosAngle;
-		float cosFalloffStart;
-		float padding[2];
-	};
+struct PointLight {
+	Vector4 color;
+	Vector3 position;
+	float intensity;
+	float radius;
+	float decay;
+	float padding[2];
+};
 
-	struct TransformationMatrix {
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-	};
+struct SpotLight {
+	Vector4 color;
+	Vector3 position;
+	float intensity;
+	Vector3 direction;
+	float distance;
+	float decay;
+	float cosAngle;
+	float cosFalloffStart;
+	float padding[2];
+};
 
-	struct AABB {
-		Vector3 min;
-		Vector3 max;
-	};
+struct TransformationMatrix {
+	Matrix4x4 WVP;
+	Matrix4x4 World;
+};
+
+struct AABB {
+	Vector3 min;
+	Vector3 max;
+};
 
 namespace MyMath {
 
@@ -93,6 +100,7 @@ namespace MyMath {
 	Vector3& operator*=(Vector3& v1, const Vector3& v2);
 	Vector3& operator/=(Vector3& v1, const Vector3& v2);
 
+	Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2);
 
 	Matrix4x4 MakeIdentity4x4();
 	Matrix4x4 MakeScaleMatrix(Vector3 scale);

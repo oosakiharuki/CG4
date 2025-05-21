@@ -101,15 +101,15 @@ void Object3d::Draw(const WorldTransform& worldTransform) {
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = Multiply(worldTransform.matWorld_, projectionMatrix);
+		WorldViewProjectionMatrix = modelData.rootNode.localMatrix * worldTransform.matWorld_ * projectionMatrix;
 	}
 	else {
 		WorldViewProjectionMatrix = worldTransform.matWorld_;
 	}
 
-	wvpData->World = worldTransform.matWorld_;
+	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
-	wvpData->WVP = WorldViewProjectionMatrix;
+	wvpData->WVP =  WorldViewProjectionMatrix;
 
 	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
 
@@ -130,13 +130,13 @@ void Object3d::Draw(const WorldTransform& worldTransform, const std::string& tex
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = Multiply(worldTransform.matWorld_, projectionMatrix);
+		WorldViewProjectionMatrix = modelData.rootNode.localMatrix * worldTransform.matWorld_ * projectionMatrix;
 	}
 	else {
 		WorldViewProjectionMatrix = worldTransform.matWorld_;
 	}
 
-	wvpData->World = worldTransform.matWorld_;
+	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
 	wvpData->WVP = WorldViewProjectionMatrix;
 
@@ -156,6 +156,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const std::string& tex
 
 void Object3d::SetModelFile(const std::string& filePath) {
 	model = ModelManager::GetInstance()->FindModel(filePath);
+	modelData = model->GetModelData();
 }
 
 void Object3d::LightSwitch(bool isLight) {

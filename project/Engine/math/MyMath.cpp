@@ -74,6 +74,13 @@ namespace MyMath {
 		return v1;
 	}
 
+
+	Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2){
+		Matrix4x4 result;
+		result = Multiply(m1, m2);
+		return result;
+	}
+
 	Matrix4x4 MakeIdentity4x4() {
 		Matrix4x4 result{};
 

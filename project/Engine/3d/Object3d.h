@@ -67,4 +67,6 @@ private:
 
 	Model* model = nullptr;
 	Camera* camera = nullptr;
+
+	ModelData modelData;
 };

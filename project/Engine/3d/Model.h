@@ -1,6 +1,7 @@
 #pragma once
 #include "MyMath.h"
 #include "ModelCommon.h"
+#include <assimp/scene.h>
 
 class Model{
 public:
@@ -12,8 +13,14 @@ public:
 
 	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
-	
+	//gltf用
+	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
+
 	void LightOn(bool Light) { materialData->enableLighting = Light; }
+
+	static Node ReadNode(aiNode* node);
+
+	ModelData GetModelData() { return modelData; }
 
 private:
 	ModelCommon* modelCommon = nullptr;

@@ -3,7 +3,8 @@
 void GameScene::Initialize() {
 
 	ModelManager::GetInstance()->LoadModel("plane");
-	ModelManager::GetInstance()->LoadModel("grass01");
+	//ModelManager::GetInstance()->LoadModel("grass01");
+	ModelManager::GetInstance()->LoadModel("TwoSidedPlane");
 
 
 	camera = new Camera();
@@ -88,7 +89,7 @@ void GameScene::Draw() {
 	//パーティクル描画処理
 	ParticleCommon::GetInstance()->Command();
 
-	particle->Draw();
+	//particle->Draw();
 
 	//スプライト描画処理(UI用)
 	SpriteCommon::GetInstance()->Command();

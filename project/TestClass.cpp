@@ -16,8 +16,10 @@ void TestClass::Init() {
 
 	object_ = new Object3d();
 	object_->Initialize();
-	object_->SetModelFile("grass01");
+	object_->SetModelFile("plane");
 	
+	worldTransform_.translation_.y = 0.0f;
+	worldTransform_.rotation_.x = -1.277f;
 }
 
 void TestClass::Update() {
@@ -42,8 +44,6 @@ void TestClass::Update() {
 #endif // _DEBUG
 
 	object_->LightSwitch(onLight);
-
-	worldTransform_.translation_.y = -2.0f;
 
 	worldTransform_.UpdateMatrix();
 }
