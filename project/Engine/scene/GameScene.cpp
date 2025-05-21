@@ -40,13 +40,21 @@ void GameScene::Update() {
 		OutputDebugStringA("Hit 1\n");
 	}
 
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	if (Input::GetInstance()->TriggerKey(DIK_F1)) {
 		sceneNo = Title;
 	}
 
 	testClass->Update();
-
+	
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		particle->IsBorn(true);
+	}
+	else {
+		particle->IsBorn(false);
+	}
+	
 	particle->Update();
+
 
 
 	camera->Update();

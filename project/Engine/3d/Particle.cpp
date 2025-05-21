@@ -82,11 +82,9 @@ void Particle::Update() {
 	const float kDeltaTime = 1.0f / 60.0f;
 	emitter.frequencyTime += kDeltaTime;
 
-	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count,ParticleType::Plane);
-
-	if (emitter.frequency <= emitter.frequencyTime) {
+	if (isBorn) {
+		ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count, ParticleType::Plane);
 		particles.splice(particles.end(), ParticleManager::GetInstance()->GetParticle(fileName));
-		emitter.frequencyTime -= emitter.frequency;
 	}
 
 	numInstance = 0;
