@@ -25,8 +25,32 @@ void ModelManager::LoadModel(const std::string& filePath) {
 		return;
 	}
 
+	std::string file = "/";
+	std::string fileType = "";
+	bool typeMode = false;
+
+	for (char value : filePath) {
+		if (value != '.' && !typeMode) {
+			file += value;    //保管しているファイル名
+		}
+		else {
+			fileType += value;//.obj / .gltf
+			typeMode = true;
+		}
+	}
+	file += "/";
+
 	std::unique_ptr<Model> model = std::make_unique<Model>();
-	model->Initialize(modelCommon, "resource", filePath);//model,file名,OBJ本体
+
+	if (fileType == ".obj") {
+		model->SetObjType(ObjectType::obj);
+	}
+	else if (fileType == ".gltf") {
+		model->SetObjType(ObjectType::gltf);
+	}
+
+	model->Initialize(modelCommon,"resource", "Object" + file + filePath);//model,file名,OBJ本体
+
 
 	models.insert(std::make_pair(filePath, std::move(model)));
 

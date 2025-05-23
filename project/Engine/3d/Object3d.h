@@ -69,4 +69,9 @@ private:
 	Camera* camera = nullptr;
 
 	ModelData modelData;
+
+
+	Animation animation;
+	///アニメーションタイマー
+	float animationTime = 0.0f;
 };

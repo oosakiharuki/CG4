@@ -11,14 +11,14 @@
 using namespace MyMath;
 
 void Object3d::Initialize() {
-	this->object3dCommon = Object3dCommon::GetInstance();	
+	this->object3dCommon = Object3dCommon::GetInstance();
 	this->camera = object3dCommon->GetDefaultCamera();
 	wvpResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(TransformationMatrix));
 	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
-	
-	
+
+
 	wvpData->World = MakeIdentity4x4();
-	wvpData->WVP= MakeIdentity4x4();
+	wvpData->WVP = MakeIdentity4x4();
 
 	//ライト用のリソース
 	directionalLightSphereResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(DirectionalLight));
@@ -31,7 +31,7 @@ void Object3d::Initialize() {
 
 
 	//Phong Reflection Model
-	cameraResource =object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(CameraForGPU));
+	cameraResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(CameraForGPU));
 	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
 
 	cameraData->worldPosition = { 0,0,0 };
@@ -98,16 +98,27 @@ void Object3d::Update() {
 
 
 void Object3d::Draw(const WorldTransform& worldTransform) {
+
+	animationTime += 1.0f / 60.0f;
+	animationTime = std::fmod(animationTime, animation.duration);
+	NodeAnimation& rootNodeAnimation = animation.nodeAnimations[modelData.rootNode.name];
+	Vector3 translate = CalculateValue(rootNodeAnimation.translate, animationTime);
+	Vector3 rotate = CalculateValue(rootNodeAnimation.rotate, animationTime);
+	Vector3 scale = CalculateValue(rootNodeAnimation.scale, animationTime);
+
+	Matrix4x4 localMatrix = MakeAffineMatrix(scale, rotate, translate);
+
+
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = modelData.rootNode.localMatrix * worldTransform.matWorld_ * projectionMatrix;
+		WorldViewProjectionMatrix = localMatrix * worldTransform.matWorld_ * projectionMatrix;
 	}
 	else {
 		WorldViewProjectionMatrix = worldTransform.matWorld_;
 	}
 
-	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
+	wvpData->World = localMatrix * worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
 	wvpData->WVP =  WorldViewProjectionMatrix;
 
@@ -157,6 +168,7 @@ void Object3d::Draw(const WorldTransform& worldTransform, const std::string& tex
 void Object3d::SetModelFile(const std::string& filePath) {
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
+	animation = model->GetAnimationData();
 }
 
 void Object3d::LightSwitch(bool isLight) {

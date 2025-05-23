@@ -2,9 +2,11 @@
 
 void GameScene::Initialize() {
 
-	ModelManager::GetInstance()->LoadModel("plane");
+	//ModelManager::GetInstance()->LoadModel("plane.gltf");
+	//ModelManager::GetInstance()->LoadModel("plane.obj");
 	//ModelManager::GetInstance()->LoadModel("grass01");
-	ModelManager::GetInstance()->LoadModel("TwoSidedPlane");
+	//ModelManager::GetInstance()->LoadModel("TwoSidedPlane.gltf");
+	ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf");
 
 
 	camera = new Camera();

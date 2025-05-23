@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 	
 //model
 struct MaterialData {
@@ -42,6 +43,38 @@ struct Material {
 	float padding[3];
 	Matrix4x4 uvTransform;
 	float shininess;
+};
+
+struct Quaternion {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+template<typename tValue>
+struct keyframe {
+	tValue value; //キーフレームの値(Vector3/Quatanrion)
+	float time;   //時刻(秒)
+};
+
+using keyframeVector3 = keyframe<Vector3>;      //トランスフォームとスケーリング用
+using keyframeQuatarnion = keyframe<Quaternion>;//回転用
+
+template<typename tValue>
+struct AnimationCurve {
+	std::vector<keyframe<tValue>> keyframes;
+};
+
+struct NodeAnimation {
+	AnimationCurve<Vector3> translate;
+	AnimationCurve<Quaternion> rotate;
+	AnimationCurve<Vector3> scale;
+};
+
+struct Animation {
+	float duration; //アニメーション全体の尺
+	std::map<std::string, NodeAnimation> nodeAnimations;
 };
 
 struct DirectionalLight {
@@ -126,4 +159,10 @@ namespace MyMath {
 	Matrix4x4 MakePerspectiveFovMatrix(float forY, float aspectRatio, float nearClip, float farClip);
 
 	Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
+
+
+	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
+	Vector3 CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
+
+	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t);
 }

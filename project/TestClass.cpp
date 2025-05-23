@@ -16,10 +16,10 @@ void TestClass::Init() {
 
 	object_ = new Object3d();
 	object_->Initialize();
-	object_->SetModelFile("plane");
+	object_->SetModelFile("AnimatedCube.gltf");
 	
 	worldTransform_.translation_.y = 0.0f;
-	worldTransform_.rotation_.x = -1.277f;
+	//worldTransform_.rotation_.x = -1.277f;
 }
 
 void TestClass::Update() {

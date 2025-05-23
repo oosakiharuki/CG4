@@ -1,4 +1,6 @@
 #include "MyMath.h"
+#include <cassert>
+#include <cmath>
 
 namespace MyMath {
 
@@ -485,4 +487,60 @@ namespace MyMath {
 
 		return result;
 	}
+
+	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time) {
+		assert(!keyframes.keyframes.empty());
+		if (keyframes.keyframes.size() == 1 || time <= keyframes.keyframes[0].time) {
+			return keyframes.keyframes[0].value; //アニメーションしない、止まっている時
+		}
+		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
+				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
+				return Lerp(keyframes.keyframes[index].value, keyframes.keyframes[nextIndex].value, t);
+			}
+		}
+		return (*keyframes.keyframes.rbegin()).value;
+	}	
+	
+	Vector3 CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time) {
+		assert(!keyframes.keyframes.empty());
+		if (keyframes.keyframes.size() == 1 || time <= keyframes.keyframes[0].time) {
+			return { keyframes.keyframes[0].value.x,keyframes.keyframes[0].value.y ,keyframes.keyframes[0].value.z };
+		}
+		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
+				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
+				
+				Vector3 Vector;
+				Vector3 NextVector;
+
+				Vector = { keyframes.keyframes[index].value.x,keyframes.keyframes[index].value.y,keyframes.keyframes[index].value.z };
+				NextVector = { keyframes.keyframes[nextIndex].value.x,keyframes.keyframes[nextIndex].value.y,keyframes.keyframes[nextIndex].value.z };
+
+				
+				return Lerp(Vector,NextVector, t);
+			}
+		}
+		
+		Vector3 result = {
+			(*keyframes.keyframes.rbegin()).value.x,
+			(*keyframes.keyframes.rbegin()).value.y,
+			(*keyframes.keyframes.rbegin()).value.z
+		};
+
+		return result;
+	}
+
+	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t) {
+
+		Vector3 a = { t * p0.x ,t * p0.y ,t * p0.z };
+		Vector3 b = { (1.0f - t) * p1.x,(1.0f - t) * p1.y,(1.0f - t) * p1.z };
+		Vector3	c = { a.x + b.x,a.y + b.y,a.z + b.z };
+
+		return c;
+	}
+
+
 }

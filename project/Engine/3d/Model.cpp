@@ -12,8 +12,17 @@ using namespace MyMath;
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& fileName) {
 	this->modelCommon = modelCommon;
 
-	//modelData = LoadObjFile(directorypath, fileName);
-	modelData = LoadModelFile(directorypath, fileName);
+	switch (objectType)
+	{
+	case ObjectType::obj:	//.obj
+		modelData = LoadObjFile(directorypath, fileName);
+		break;
+	case ObjectType::gltf:
+		//.gltf
+		modelData = LoadModelFile(directorypath, fileName);
+		animation = LoadAnimationFile(directorypath, fileName);
+		break;
+	}
 
 	InitialData = modelData;
 
@@ -72,7 +81,7 @@ void Model::Draw(const std::string& textureFilePath) {
 MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	MaterialData materialData;
 	std::string line;
-	std::ifstream file(directoryPath + "/Object/" + filename);
+	std::ifstream file(directoryPath + "/" + filename);
 	assert(file.is_open());
 
 	//ファイルを開く
@@ -96,7 +105,7 @@ ModelData Model::LoadObjFile(const std::string& directoryPath, const std::string
 	ModelData modelData;
 
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/Object/" + filename + "/" + filename + ".obj";
+	std::string filePath = directoryPath + "/" + filename;
 
 	const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応なし
@@ -152,7 +161,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 	ModelData modelData;
 
 	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/Object/" + filename + "/" + filename + ".gltf";
+	std::string filePath = directoryPath + "/" + filename;
 
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); //メッシュがないのは対応なし
@@ -190,6 +199,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 		}
 	}
 
+	modelData.material.textureFilePath = directoryPath + "/Sprite/uvChecker.png";
 	//MaterialData
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
@@ -200,7 +210,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 		}
 
 	}
-	modelData.material.textureFilePath = directoryPath + "/Sprite/uvChecker.png";
+	
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
 	return modelData;
@@ -240,4 +250,47 @@ Node Model::ReadNode(aiNode* node) {
 	}
 
 	return result;
+}
+
+
+Animation  Model::LoadAnimationFile(const std::string& directoryPath, const std::string& filename) {
+	Animation animation;
+	Assimp::Importer importer;
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
+	assert(scene->mNumAnimations != 0);//アニメーションがないとき
+	aiAnimation* animationAssimp = scene->mAnimations[0];//最初のアニメーションのみ。複数はまだ
+	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);//時間単位を秒に
+
+	for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
+		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+		NodeAnimation& nodeAnimation = animation.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+			keyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y ,keyAssimp.mValue.z };
+			nodeAnimation.translate.keyframes.push_back(keyframe);
+		}
+
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
+			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+			keyframeQuatarnion keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			//y,zを右手から左手に変更するため" - "に
+			keyframe.value = { keyAssimp.mValue.x,-keyAssimp.mValue.y ,-keyAssimp.mValue.z,keyAssimp.mValue.w };
+			nodeAnimation.rotate.keyframes.push_back(keyframe);
+		}
+
+		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+			keyframeVector3 keyframe;
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y ,keyAssimp.mValue.z };
+			nodeAnimation.scale.keyframes.push_back(keyframe);
+		}
+	}
+
+
+	return animation;
 }

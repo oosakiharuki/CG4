@@ -3,6 +3,11 @@
 #include "ModelCommon.h"
 #include <assimp/scene.h>
 
+enum class ObjectType {
+	obj,
+	gltf
+};
+
 class Model{
 public:
 
@@ -15,12 +20,16 @@ public:
 	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 	//gltf用
 	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
+	static Animation LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 
 	void LightOn(bool Light) { materialData->enableLighting = Light; }
 
 	static Node ReadNode(aiNode* node);
 
 	ModelData GetModelData() { return modelData; }
+	Animation GetAnimationData() { return animation; }
+
+	void SetObjType(ObjectType objType) { objectType = objType; }
 
 private:
 	ModelCommon* modelCommon = nullptr;
@@ -37,4 +46,10 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 
 	ModelData InitialData;
+	
+	//obj or gltf
+	ObjectType objectType;
+
+	//アニメーション
+	Animation animation;
 };
