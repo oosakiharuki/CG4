@@ -18,6 +18,7 @@ void TestClass::Init() {
 	object_->Initialize();
 	object_->SetModelFile("grass01");
 	
+	worldTransform_.translation_.y = -0.1f;
 }
 
 void TestClass::Update() {
@@ -42,8 +43,6 @@ void TestClass::Update() {
 #endif // _DEBUG
 
 	object_->LightSwitch(onLight);
-
-	worldTransform_.translation_.y = -2.0f;
 
 	worldTransform_.UpdateMatrix();
 }

@@ -23,7 +23,7 @@ void GameScene::Initialize() {
 
 
 
-	ParticleManager::GetInstance()->CreateParticleGroup("plane", "resource/Sprite/gradationLine.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("plane", "resource/Sprite/NewGradationLine.png");
 
 	particle = new Particle();
 	particle->Initialize(ParticleCommon::GetInstance(),"plane");
