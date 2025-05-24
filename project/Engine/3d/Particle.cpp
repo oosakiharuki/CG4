@@ -64,7 +64,7 @@ void Particle::Initialize(ParticleCommon* ParticleCommon, const std::string& fil
 	directionalLightSphereData->intensity = 1.0f;
 
 	//エミッター
-	emitter.transform.translate = { 0.0f,0.0f,0.0f };
+	emitter.transform.translate = { 0.0f,1.0f,0.0f };
 	emitter.transform.rotate = { 0.0f,0.0f,0.0f };
 	emitter.transform.scale = { 1.0f,1.0f,1.0f };
 	emitter.count = 3;
@@ -83,11 +83,10 @@ void Particle::Update() {
 	const float kDeltaTime = 1.0f / 60.0f;
 	emitter.frequencyTime += kDeltaTime;
 
-
-	ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count);
-	if (emitter.frequency <= emitter.frequencyTime) {
+	if (isBorn) {
+		ParticleManager::GetInstance()->Emit(fileName, emitter.transform.translate, emitter.count);
 		particles.splice(particles.end(), ParticleManager::GetInstance()->GetParticle(fileName));
-		emitter.frequencyTime -= emitter.frequency;
+		isBorn = false;
 	}
 
 	numInstance = 0;

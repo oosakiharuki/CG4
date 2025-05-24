@@ -41,7 +41,8 @@ void GameScene::Update() {
 	}
 
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-		sceneNo = Title;
+		//sceneNo = Title;
+		particle->IsBorn(true);
 	}
 
 	testClass->Update();

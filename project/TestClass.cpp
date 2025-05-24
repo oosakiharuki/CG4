@@ -18,7 +18,7 @@ void TestClass::Init() {
 	object_->Initialize();
 	object_->SetModelFile("grass01");
 	
-	worldTransform_.translation_.y = -0.1f;
+	worldTransform_.translation_.y = -1.0f;
 }
 
 void TestClass::Update() {

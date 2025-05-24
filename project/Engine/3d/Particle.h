@@ -71,6 +71,8 @@ public:
 
 	bool IsCollision(const AABB& aabb, const Vector3& point);
 
+	void IsBorn(bool result) { isBorn = result; }
+
 private:
 	ParticleCommon* particleCommon = nullptr;
 
@@ -118,4 +120,5 @@ private:
 	//std::list<Particles> MakeEmit(const Emitter& emitter, std::mt19937& randomEngine);
 
 	AccelerationField accelerationField;
+	bool isBorn = false;
 };
