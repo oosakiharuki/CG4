@@ -9,16 +9,23 @@ TestClass::TestClass(){}
 
 TestClass::~TestClass() {
 	delete object_;
+	delete object2_;
 }
 
 void TestClass::Init() {
 	worldTransform_.Initialize();
+	worldTransform2_.Initialize();
 
 	object_ = new Object3d();
 	object_->Initialize();
 	object_->SetModelFile("AnimatedCube.gltf");
 	
+	object2_ = new Object3d();
+	object2_->Initialize();
+	object2_->SetModelFile("MyBoxRotate.gltf");
+
 	worldTransform_.translation_.y = 0.0f;
+	worldTransform2_.translation_.x = 3.0f;
 	//worldTransform_.rotation_.x = -1.277f;
 }
 
@@ -46,9 +53,11 @@ void TestClass::Update() {
 	object_->LightSwitch(onLight);
 
 	worldTransform_.UpdateMatrix();
+	worldTransform2_.UpdateMatrix();
 }
 
 
 void TestClass::Draw() {
 	object_->Draw(worldTransform_);
+	object2_->Draw(worldTransform2_);
 }

@@ -1,6 +1,7 @@
 #include "MyMath.h"
 #include <cassert>
 #include <cmath>
+#include <numbers>
 
 namespace MyMath {
 
@@ -516,10 +517,19 @@ namespace MyMath {
 				Vector3 Vector;
 				Vector3 NextVector;
 
-				Vector = { keyframes.keyframes[index].value.x,keyframes.keyframes[index].value.y,keyframes.keyframes[index].value.z };
-				NextVector = { keyframes.keyframes[nextIndex].value.x,keyframes.keyframes[nextIndex].value.y,keyframes.keyframes[nextIndex].value.z };
+				///ここはradianをかける
+				Vector = { 
+					keyframes.keyframes[index].value.x * std::numbers::pi_v<float> * 2,
+					keyframes.keyframes[index].value.y * std::numbers::pi_v<float> * 2,
+					keyframes.keyframes[index].value.z * std::numbers::pi_v<float> * 2
+				};
+				NextVector = {
+					keyframes.keyframes[nextIndex].value.x * std::numbers::pi_v<float> * 2,
+					keyframes.keyframes[nextIndex].value.y * std::numbers::pi_v<float> * 2,
+					keyframes.keyframes[nextIndex].value.z * std::numbers::pi_v<float> * 2
+				};
 
-				
+
 				return Lerp(Vector,NextVector, t);
 			}
 		}

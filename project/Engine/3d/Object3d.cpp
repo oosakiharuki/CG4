@@ -7,6 +7,7 @@
 #include <sstream>
 #include "ModelManager.h"
 #include <numbers>
+#include "Logger.h"
 
 using namespace MyMath;
 
@@ -99,11 +100,13 @@ void Object3d::Update() {
 
 void Object3d::Draw(const WorldTransform& worldTransform) {
 
+	//作るときはフレームレートを60FPSにする
 	animationTime += 1.0f / 60.0f;
 	animationTime = std::fmod(animationTime, animation.duration);
+
 	NodeAnimation& rootNodeAnimation = animation.nodeAnimations[modelData.rootNode.name];
 	Vector3 translate = CalculateValue(rootNodeAnimation.translate, animationTime);
-	Vector3 rotate = CalculateValue(rootNodeAnimation.rotate, animationTime);
+	Vector3 rotate = CalculateValue(rootNodeAnimation.rotate, animationTime / 2);
 	Vector3 scale = CalculateValue(rootNodeAnimation.scale, animationTime);
 
 	Matrix4x4 localMatrix = MakeAffineMatrix(scale, rotate, translate);
