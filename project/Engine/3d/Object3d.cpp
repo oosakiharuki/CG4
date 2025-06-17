@@ -77,57 +77,37 @@ void Object3d::Initialize() {
 
 }
 
-void Object3d::Update() {
-
-	//モデル
-	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-	Matrix4x4 WorldViewProjectionMatrix;
-	if (camera) {
-		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = Multiply(worldMatrix, projectionMatrix);
-	}
-	else {
-		WorldViewProjectionMatrix = worldMatrix;
-	}
-	wvpData->World = worldMatrix;
-	wvpData->WVP = WorldViewProjectionMatrix;
-
-	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
-
-
-}
-
-
-void Object3d::Draw(const WorldTransform& worldTransform) {
+void Object3d::Update(const WorldTransform& worldTransform) {
 
 	//作るときはフレームレートを60FPSにする
 	animationTime += 1.0f / 60.0f;
 	animationTime = std::fmod(animationTime, animation.duration);
 
-	NodeAnimation& rootNodeAnimation = animation.nodeAnimations[modelData.rootNode.name];
-	Vector3 translate = CalculateValue(rootNodeAnimation.translate, animationTime);
-	Vector3 rotate = CalculateValue(rootNodeAnimation.rotate, animationTime / 2);
-	Vector3 scale = CalculateValue(rootNodeAnimation.scale, animationTime);
-
-	Matrix4x4 localMatrix = MakeAffineMatrix(scale, rotate, translate);
+	ApplyAnimation(skeleton, animation, animationTime);
+	SkeletonUpdate(skeleton);
 
 
+
+	Matrix4x4 skaletonSpaceMatrix;
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = localMatrix * worldTransform.matWorld_ * projectionMatrix;
+		WorldViewProjectionMatrix = worldTransform.matWorld_ * projectionMatrix;
 	}
 	else {
 		WorldViewProjectionMatrix = worldTransform.matWorld_;
 	}
+	Matrix4x4 JointWorldMatrix = skaletonSpaceMatrix * worldTransform.matWorld_;
 
-	wvpData->World = localMatrix * worldTransform.matWorld_;
+	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
-	wvpData->WVP =  WorldViewProjectionMatrix;
+	wvpData->WVP = WorldViewProjectionMatrix;
 
 	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
+}
 
 
+void Object3d::Draw() {
 	//モデル
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightSphereResource->GetGPUVirtualAddress());
@@ -139,24 +119,7 @@ void Object3d::Draw(const WorldTransform& worldTransform) {
 	}
 }
 
-void Object3d::Draw(const WorldTransform& worldTransform, const std::string& textureData) {
-
-	Matrix4x4 WorldViewProjectionMatrix;
-	if (camera) {
-		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = modelData.rootNode.localMatrix * worldTransform.matWorld_ * projectionMatrix;
-	}
-	else {
-		WorldViewProjectionMatrix = worldTransform.matWorld_;
-	}
-
-	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
-	//wvpData->World = worldMatrix;
-	wvpData->WVP = WorldViewProjectionMatrix;
-
-	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
-
-
+void Object3d::Draw(const std::string& textureData) {
 	//モデル
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightSphereResource->GetGPUVirtualAddress());
@@ -172,6 +135,7 @@ void Object3d::SetModelFile(const std::string& filePath) {
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
+	skeleton = CreateSkeltion(modelData.rootNode);
 }
 
 void Object3d::LightSwitch(bool isLight) {
@@ -179,3 +143,29 @@ void Object3d::LightSwitch(bool isLight) {
 		model->LightOn(isLight);
 	}
 }
+
+void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime) {
+	for (Joint& joint : skeleton.joints) {
+		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
+			const NodeAnimation& rootNodeAnimation = (*it).second;
+			joint.transform.translate = CalculateValue(rootNodeAnimation.translate, animationTime);
+			joint.transform.rotate = CalculateValueQuaternion(rootNodeAnimation.rotate, animationTime / 2);
+			joint.transform.scale = CalculateValue(rootNodeAnimation.scale, animationTime);
+
+		}
+	}
+}
+
+
+void Object3d::SkeletonUpdate(Skeleton& skeleton) {
+	for (Joint& joint : skeleton.joints) {
+		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+		if (joint.parent) {
+			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;
+		}
+		else {
+			joint.skeletonSpaceMatrix = joint.localMatrix;
+		}
+	}
+}
+

@@ -8,6 +8,7 @@ void GameScene::Initialize() {
 	//ModelManager::GetInstance()->LoadModel("TwoSidedPlane.gltf");
 	ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf");
 	ModelManager::GetInstance()->LoadModel("MyBoxRotate.gltf");
+	ModelManager::GetInstance()->LoadModel("simpleSkin.gltf");
 
 
 	camera = new Camera();

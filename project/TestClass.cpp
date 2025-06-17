@@ -18,7 +18,7 @@ void TestClass::Init() {
 
 	object_ = new Object3d();
 	object_->Initialize();
-	object_->SetModelFile("AnimatedCube.gltf");
+	object_->SetModelFile("simpleSkin.gltf");
 	
 	object2_ = new Object3d();
 	object2_->Initialize();
@@ -54,10 +54,14 @@ void TestClass::Update() {
 
 	worldTransform_.UpdateMatrix();
 	worldTransform2_.UpdateMatrix();
+
+
+	object_->Update(worldTransform_);
+	object2_->Update(worldTransform2_);
 }
 
 
 void TestClass::Draw() {
-	object_->Draw(worldTransform_);
-	object2_->Draw(worldTransform2_);
+	object_->Draw();
+	object2_->Draw();
 }

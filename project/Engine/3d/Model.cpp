@@ -218,27 +218,36 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 
 Node Model::ReadNode(aiNode* node) {
 	Node result;
-	aiMatrix4x4 ailocalMatrix = node->mTransformation;//node localMatrixを取得
-	ailocalMatrix.Transpose();//列ベクトル→行ベクトル
-	result.localMatrix.m[0][0] = ailocalMatrix[0][0];
-	result.localMatrix.m[0][1] = ailocalMatrix[0][1];
-	result.localMatrix.m[0][2] = ailocalMatrix[0][2];
-	result.localMatrix.m[0][3] = ailocalMatrix[0][3];
 
-	result.localMatrix.m[1][0] = ailocalMatrix[1][0];
-	result.localMatrix.m[1][1] = ailocalMatrix[1][1];
-	result.localMatrix.m[1][2] = ailocalMatrix[1][2];
-	result.localMatrix.m[1][3] = ailocalMatrix[1][3];
+	aiVector3D scale, translate;
+	aiQuaternion rotate;
+	node->mTransformation.Decompose(scale, rotate, translate);
+	result.transform.scale = { scale.x ,scale.y ,scale.z };
+	result.transform.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w };
+	result.transform.translate = { -translate.x,translate.y ,translate.z };
+	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
-	result.localMatrix.m[2][0] = ailocalMatrix[2][0];
-	result.localMatrix.m[2][1] = ailocalMatrix[2][1];
-	result.localMatrix.m[2][2] = ailocalMatrix[2][2];
-	result.localMatrix.m[2][3] = ailocalMatrix[2][3];
+	//aiMatrix4x4 ailocalMatrix = node->mTransformation;//node localMatrixを取得
+	//ailocalMatrix.Transpose();//列ベクトル→行ベクトル
+	//result.localMatrix.m[0][0] = ailocalMatrix[0][0];
+	//result.localMatrix.m[0][1] = ailocalMatrix[0][1];
+	//result.localMatrix.m[0][2] = ailocalMatrix[0][2];
+	//result.localMatrix.m[0][3] = ailocalMatrix[0][3];
 
-	result.localMatrix.m[3][0] = ailocalMatrix[3][0];
-	result.localMatrix.m[3][1] = ailocalMatrix[3][1];
-	result.localMatrix.m[3][2] = ailocalMatrix[3][2];
-	result.localMatrix.m[3][3] = ailocalMatrix[3][3];
+	//result.localMatrix.m[1][0] = ailocalMatrix[1][0];
+	//result.localMatrix.m[1][1] = ailocalMatrix[1][1];
+	//result.localMatrix.m[1][2] = ailocalMatrix[1][2];
+	//result.localMatrix.m[1][3] = ailocalMatrix[1][3];
+
+	//result.localMatrix.m[2][0] = ailocalMatrix[2][0];
+	//result.localMatrix.m[2][1] = ailocalMatrix[2][1];
+	//result.localMatrix.m[2][2] = ailocalMatrix[2][2];
+	//result.localMatrix.m[2][3] = ailocalMatrix[2][3];
+
+	//result.localMatrix.m[3][0] = ailocalMatrix[3][0];
+	//result.localMatrix.m[3][1] = ailocalMatrix[3][1];
+	//result.localMatrix.m[3][2] = ailocalMatrix[3][2];
+	//result.localMatrix.m[3][3] = ailocalMatrix[3][3];
 
 
 

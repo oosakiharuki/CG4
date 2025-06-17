@@ -15,9 +15,9 @@ class Object3d
 {
 public:
 	void Initialize();
-	void Update();
-	void Draw(const WorldTransform& worldTransform);
-	void Draw(const WorldTransform& worldTransform, const std::string& textureData);
+	void Update(const WorldTransform& worldTransform);
+	void Draw();
+	void Draw(const std::string& textureData);
 
 
 	//static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
@@ -36,6 +36,9 @@ public:
 	const Vector3& GetRotate() const { return transform.rotate; }
 	const Vector3& GetTranslate()const { return transform.translate; }
 
+	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
+	void SkeletonUpdate(Skeleton& skeleton);
+
 private:
 	Object3dCommon* object3dCommon = nullptr;
 
@@ -46,7 +49,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightSphereResource;
 	//マテリアルにデータを書き込む
 	DirectionalLight* directionalLightSphereData = nullptr;
-	
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource;
 	CameraForGPU* cameraData = nullptr;
 
@@ -74,4 +77,7 @@ private:
 	Animation animation;
 	///アニメーションタイマー
 	float animationTime = 0.0f;
+
+	Skeleton skeleton;
+
 };

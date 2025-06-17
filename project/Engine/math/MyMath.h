@@ -12,7 +12,9 @@
 #include <vector>
 #include <string>
 #include <map>
-	
+
+#include <optional>
+
 //model
 struct MaterialData {
 	std::string textureFilePath;
@@ -25,10 +27,46 @@ struct VertexData {
 	Vector3 normal;
 };
 
+struct Quaternion {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+struct EulerTransform {
+	Vector3 scale;
+	Vector3 rotate;//Eulerでの回転
+	Vector3 translate;
+};
+
+struct QuaternionTransform {
+	Vector3 scale;
+	Quaternion rotate;
+	Vector3 translate;
+};
+
 struct Node {
+	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
 	std::string name;
 	std::vector<Node> children;
+};
+
+struct Joint {
+	QuaternionTransform transform; //transform
+	Matrix4x4 localMatrix;//localMatrix
+	Matrix4x4 skeletonSpaceMatrix;//スケルトン
+	std::string name;//名前
+	std::vector<int32_t> children;//子JointのIndexリスト
+	int32_t index;//自身のIndex
+	std::optional<int32_t> parent;//親JointのIndexリスト
+};
+
+struct Skeleton {
+	int32_t root;//RootJointのIndex
+	std::map <std::string, int32_t>jointMap;//コンテナ
+	std::vector<Joint> joints;//所属ジョイント
 };
 
 struct ModelData {
@@ -43,13 +81,6 @@ struct Material {
 	float padding[3];
 	Matrix4x4 uvTransform;
 	float shininess;
-};
-
-struct Quaternion {
-	float x;
-	float y;
-	float z;
-	float w;
 };
 
 template<typename tValue>
@@ -150,6 +181,7 @@ namespace MyMath {
 	Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2);
 
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate);
 #pragma endregion
 
 #pragma region 逆数
@@ -163,6 +195,17 @@ namespace MyMath {
 
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
 	Vector3 CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
+	Quaternion CalculateValueQuaternion(const AnimationCurve<Quaternion>& keyframes, float time);
 
 	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t);
+
+	Quaternion operator-(const Quaternion& q);
+	Quaternion operator*(const float f, const Quaternion& q);
+	Quaternion operator+(const Quaternion& q0, const Quaternion& q1);
+
+	float MulctyQuaternion(const Quaternion& q1, const Quaternion& q2);
+	Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+
+	Skeleton CreateSkeltion(const Node& rootNode);
+	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 }
