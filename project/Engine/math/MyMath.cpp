@@ -49,6 +49,19 @@ namespace MyMath {
 		return v * f;
 	}
 
+	Vector3 operator/(const Vector3& v, const float f) {
+		Vector3 result;
+		result.x = v.x / f;
+		result.y = v.y / f;
+		result.z = v.z / f;
+		return result;
+	}
+
+	Vector3 operator/(const float f, const Vector3& v) {
+		return v / f;
+	}
+
+
 	Vector3& operator+=(Vector3& v1, const Vector3& v2) {
 		v1.x += v2.x;
 		v1.y += v2.y;

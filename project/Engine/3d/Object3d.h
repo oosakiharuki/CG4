@@ -9,11 +9,16 @@
 #include "Camera.h"
 #include "WorldTransform.h"
 
+#include "SphereModel.h"
+
 class Object3dCommon;
 
 class Object3d
 {
 public:
+	Object3d();
+	~Object3d();
+
 	void Initialize();
 	void Update(const WorldTransform& worldTransform);
 	void Draw();
@@ -79,5 +84,8 @@ private:
 	float animationTime = 0.0f;
 
 	Skeleton skeleton;
+
+	std::vector<SphereModel*> debugSphere;
+	void SetWireframe();
 
 };

@@ -42,6 +42,8 @@ void Framework::Initialize() {
 	particleCommon->Initialize(dxCommon);
 	ParticleManager::GetInstance()->Initialize(dxCommon, srvManager);
 
+	debugWireframes =  DebugWireframes::GetInstance();
+	debugWireframes->Initialize(dxCommon);
 }
 
 void Framework::Update() {
@@ -80,6 +82,7 @@ void Framework::Finalize() {
 	delete modelCommon;
 	
 	particleCommon->Finalize();
+	debugWireframes->Finalize();
 }
 
 

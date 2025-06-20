@@ -14,6 +14,7 @@
 #include "ImGuiManager.h"
 #include "D3DResorceLeakChecker.h"
 
+#include"DebugWireframes.h"
 
 class Framework{
 public:
@@ -36,6 +37,7 @@ private:
 	Object3dCommon* object3dCommon = nullptr;
 	ModelCommon* modelCommon = nullptr;
 	ParticleCommon* particleCommon = nullptr;
+	DebugWireframes* debugWireframes = nullptr;
 
 	bool isRequst = false;
 };

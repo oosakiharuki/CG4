@@ -1,29 +1,29 @@
-#include "Object3dCommon.h"
+#include "DebugWireframes.h"
 
 using namespace Logger;
 
-Object3dCommon* Object3dCommon::instance = nullptr;
+DebugWireframes* DebugWireframes::instance = nullptr;
 
-uint32_t Object3dCommon::kSRVIndexTop = 1;
+uint32_t DebugWireframes::kSRVIndexTop = 1;
 
-Object3dCommon* Object3dCommon::GetInstance() {
+DebugWireframes* DebugWireframes::GetInstance() {
 	if (instance == nullptr) {
-		instance = new Object3dCommon;
+		instance = new DebugWireframes;
 	}
 	return instance;
 }
-void Object3dCommon::Finalize() {
+void DebugWireframes::Finalize() {
 	delete instance;
 	instance = nullptr;
 }
-void Object3dCommon::Initialize(DirectXCommon* dxCommon) {
+void DebugWireframes::Initialize(DirectXCommon* dxCommon) {
 	dxCommon_ = dxCommon;
-	
+
 	GraphicsPipeline();
 }
 
 
-void Object3dCommon::RootSignature() {
+void DebugWireframes::RootSignature() {
 
 	//RootSignature
 	descriptionRootSignature.Flags =
@@ -85,7 +85,7 @@ void Object3dCommon::RootSignature() {
 
 }
 
-void Object3dCommon::GraphicsPipeline() {
+void DebugWireframes::GraphicsPipeline() {
 
 	RootSignature();
 
@@ -119,7 +119,7 @@ void Object3dCommon::GraphicsPipeline() {
 	inputElementDescs[2].SemanticIndex = 0;
 	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	
+
 	inputElementDescs[3].SemanticName = "WORLDPOSITION";
 	inputElementDescs[3].SemanticIndex = 0;
 	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -139,7 +139,7 @@ void Object3dCommon::GraphicsPipeline() {
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
 	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;//表裏表示
-	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME; // ワイヤーフレーム
 
 	//shaderのコンパイラ
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resource/shaders/Object3d.VS.hlsl", L"vs_6_0");
@@ -180,7 +180,7 @@ void Object3dCommon::GraphicsPipeline() {
 	assert(SUCCEEDED(hr));
 }
 
-void Object3dCommon::Command() {
+void DebugWireframes::Command() {
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get());
 	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

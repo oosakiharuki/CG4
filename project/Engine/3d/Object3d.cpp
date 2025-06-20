@@ -11,6 +11,15 @@
 
 using namespace MyMath;
 
+Object3d::Object3d(){}
+
+Object3d::~Object3d(){
+	for (auto it : debugSphere) {
+		delete it;
+	}
+	debugSphere.clear();
+}
+
 void Object3d::Initialize() {
 	this->object3dCommon = Object3dCommon::GetInstance();
 	this->camera = object3dCommon->GetDefaultCamera();
@@ -99,6 +108,7 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	}
 	Matrix4x4 JointWorldMatrix = skaletonSpaceMatrix * worldTransform.matWorld_;
 
+	wvpData->World = JointWorldMatrix * worldTransform.matWorld_;
 	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
 	wvpData->WVP = WorldViewProjectionMatrix;
@@ -117,6 +127,16 @@ void Object3d::Draw() {
 	if (model) {
 		model->Draw();
 	}
+
+	DebugWireframes::GetInstance()->Command();
+
+	//debug
+	for (auto it : debugSphere) {
+		it->Draw();
+	}
+
+	Object3dCommon::GetInstance()->Command();
+
 }
 
 void Object3d::Draw(const std::string& textureData) {
@@ -136,6 +156,15 @@ void Object3d::SetModelFile(const std::string& filePath) {
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
 	skeleton = CreateSkeltion(modelData.rootNode);
+	SkeletonUpdate(skeleton);
+
+	//デバッグワイヤーフレーム
+	//親ノード
+	//SetWireframe();
+	//子ノード
+	for (uint32_t childIndex = 0; childIndex < modelData.rootNode.children.size(); ++childIndex) {
+		SetWireframe();
+	}
 }
 
 void Object3d::LightSwitch(bool isLight) {
@@ -146,10 +175,11 @@ void Object3d::LightSwitch(bool isLight) {
 
 void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime) {
 	for (Joint& joint : skeleton.joints) {
+		//jointにアニメーションがある場合
 		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
 			const NodeAnimation& rootNodeAnimation = (*it).second;
 			joint.transform.translate = CalculateValue(rootNodeAnimation.translate, animationTime);
-			joint.transform.rotate = CalculateValueQuaternion(rootNodeAnimation.rotate, animationTime / 2);
+			joint.transform.rotate = CalculateValueQuaternion(rootNodeAnimation.rotate, animationTime);
 			joint.transform.scale = CalculateValue(rootNodeAnimation.scale, animationTime);
 
 		}
@@ -161,11 +191,28 @@ void Object3d::SkeletonUpdate(Skeleton& skeleton) {
 	for (Joint& joint : skeleton.joints) {
 		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
 		if (joint.parent) {
-			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;
+			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
 		}
 		else {
-			joint.skeletonSpaceMatrix = joint.localMatrix;
+			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
 		}
-	}
+
+		bool isChild = false;
+		for (auto i : debugSphere) {
+			if (isChild) {
+				i->Update(joint.transform.scale, joint.transform.rotate, joint.transform.translate, joint.skeletonSpaceMatrix);
+			}
+			else {
+				i->Update(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+			}
+			isChild = true;
+		}
+	}		
 }
 
+void Object3d::SetWireframe() {
+	SphereModel* sphere = new SphereModel();
+	sphere->Initialize(camera);
+
+	debugSphere.push_back(sphere);
+}

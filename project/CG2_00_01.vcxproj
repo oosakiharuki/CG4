@@ -103,6 +103,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DebugWireframes.cpp" />
     <ClCompile Include="Engine\2d\ImGuiManager.cpp" />
     <ClCompile Include="Engine\3d\Camera.cpp" />
     <ClCompile Include="Engine\3d\Particle.cpp" />
@@ -141,9 +142,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\MyGame.cpp" />
     <ClCompile Include="Engine\scene\TitleScene.cpp" />
     <ClCompile Include="Engine\3d\WorldTransform.cpp" />
+    <ClCompile Include="SphereModel.cpp" />
     <ClCompile Include="TestClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DebugWireframes.h" />
     <ClInclude Include="Engine\2d\ImGuiManager.h" />
     <ClInclude Include="Engine\3d\Camera.h" />
     <ClInclude Include="Engine\3d\Particle.h" />
@@ -179,6 +182,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\MyGame.h" />
     <ClInclude Include="Engine\scene\TitleScene.h" />
     <ClInclude Include="Engine\3d\WorldTransform.h" />
+    <ClInclude Include="SphereModel.h" />
     <ClInclude Include="TestClass.h" />
   </ItemGroup>
   <ItemGroup>
