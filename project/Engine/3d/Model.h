@@ -37,13 +37,16 @@ private:
 	ModelData modelData;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource; //index
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource;
 
 
 	VertexData* vertexData = nullptr;
+	uint32_t* mappedIndex = nullptr;
 	Material* materialData = nullptr;
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	D3D12_INDEX_BUFFER_VIEW indexBufferView; //index
 
 	ModelData InitialData;
 	
