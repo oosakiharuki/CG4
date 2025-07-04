@@ -94,6 +94,7 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 
 	ApplyAnimation(skeleton, animation, animationTime);
 	SkeletonUpdate(skeleton);
+	SkinClusterUpdate(skinCluster, skeleton);
 
 
 
@@ -128,14 +129,14 @@ void Object3d::Draw() {
 		model->Draw();
 	}
 
-	DebugWireframes::GetInstance()->Command();
+	//DebugWireframes::GetInstance()->Command();
 
-	//debug
-	for (auto it : debugSphere) {
-		it->Draw();
-	}
+	////debug
+	//for (auto it : debugSphere) {
+	//	it->Draw();
+	//}
 
-	Object3dCommon::GetInstance()->Command();
+	//Object3dCommon::GetInstance()->Command();
 
 }
 
@@ -155,8 +156,11 @@ void Object3d::SetModelFile(const std::string& filePath) {
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
-	skeleton = CreateSkeltion(modelData.rootNode);
+	skeleton = model->GetSkeleton();
+	skinCluster = model->GetSkinCluster();
+
 	SkeletonUpdate(skeleton);
+	SkinClusterUpdate(skinCluster,skeleton);
 
 	//デバッグワイヤーフレーム
 	//親ノード
@@ -208,6 +212,16 @@ void Object3d::SkeletonUpdate(Skeleton& skeleton) {
 			isChild = true;
 		}
 	}		
+}
+
+void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skeleton) {
+	for (size_t jointIndex = 0; jointIndex < skeleton.joints.size(); ++jointIndex) {
+		assert(jointIndex < skinCluster.inverseBindPoseMatrices.size());
+		skinCluster.mappedPalette[jointIndex].skeletonSpaceMatrix =
+			skinCluster.inverseBindPoseMatrices[jointIndex] * skeleton.joints[jointIndex].skeletonSpaceMatrix;
+		skinCluster.mappedPalette[jointIndex].skeletonSpaceInverseTransposeMatrix =
+			Transpose(Inverse(skinCluster.mappedPalette[jointIndex].skeletonSpaceMatrix));
+	}
 }
 
 void Object3d::SetWireframe() {

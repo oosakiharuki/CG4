@@ -29,7 +29,12 @@ public:
 	ModelData GetModelData() { return modelData; }
 	Animation GetAnimationData() { return animation; }
 
+	Skeleton GetSkeleton() { return skeleton; }
+	SkinCluster GetSkinCluster() { return skinCluster; }
+
 	void SetObjType(ObjectType objType) { objectType = objType; }
+
+	SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
 
 private:
 	ModelCommon* modelCommon = nullptr;
@@ -55,4 +60,10 @@ private:
 
 	//アニメーション
 	Animation animation;
+
+	Skeleton skeleton;
+
+	SkinCluster skinCluster;
+
+	D3D12_VERTEX_BUFFER_VIEW vbvs[2];
 };

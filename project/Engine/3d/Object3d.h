@@ -43,6 +43,7 @@ public:
 
 	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
 	void SkeletonUpdate(Skeleton& skeleton);
+	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
 
 private:
 	Object3dCommon* object3dCommon = nullptr;
@@ -84,6 +85,7 @@ private:
 	float animationTime = 0.0f;
 
 	Skeleton skeleton;
+	SkinCluster skinCluster;
 
 	std::vector<SphereModel*> debugSphere;
 	void SetWireframe();
