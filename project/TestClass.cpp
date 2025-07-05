@@ -18,11 +18,11 @@ void TestClass::Init() {
 
 	object_ = new Object3d();
 	object_->Initialize();
-	object_->SetModelFile("simpleSkin.gltf");
+	object_->SetModelFile("walk.gltf");
 	
 	object2_ = new Object3d();
 	object2_->Initialize();
-	object2_->SetModelFile("MyBoxRotate.gltf");
+	object2_->SetModelFile("sneakWalk.gltf");
 
 	worldTransform_.translation_.y = 0.0f;
 	worldTransform2_.translation_.x = 3.0f;

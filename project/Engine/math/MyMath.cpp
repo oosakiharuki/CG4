@@ -299,14 +299,42 @@ namespace MyMath {
 		return result;
 	}
 
+
+	Matrix4x4 MakeQuaternionRotateMatrix(const Quaternion& quaternion) {
+		Matrix4x4 r{};
+
+		r.m[0][0] = (quaternion.w * quaternion.w) + (quaternion.x * quaternion.x) -
+			(quaternion.y * quaternion.y) - (quaternion.z * quaternion.z);
+		r.m[0][1] = 2 * (quaternion.x * quaternion.y + quaternion.w * quaternion.z);
+		r.m[0][2] = 2 * (quaternion.x * quaternion.z - quaternion.w * quaternion.y);
+		r.m[0][3] = 0;
+
+
+		r.m[1][0] = 2 * (quaternion.x * quaternion.y - quaternion.w * quaternion.z);
+		r.m[1][1] = (quaternion.w * quaternion.w) - (quaternion.x * quaternion.x) +
+			(quaternion.y * quaternion.y) - (quaternion.z * quaternion.z);
+		r.m[1][2] = 2 * (quaternion.y * quaternion.z + quaternion.w * quaternion.x);
+		r.m[1][3] = 0;
+
+
+		r.m[2][0] = 2 * (quaternion.x * quaternion.z + quaternion.w * quaternion.y);
+		r.m[2][1] = 2 * (quaternion.y * quaternion.z - quaternion.w * quaternion.x);
+		r.m[2][2] = (quaternion.w * quaternion.w) - (quaternion.x * quaternion.x) -
+			(quaternion.y * quaternion.y) + (quaternion.z * quaternion.z);
+		r.m[2][3] = 0;
+
+		r.m[0][3] = 0;
+		r.m[1][3] = 0;
+		r.m[2][3] = 0;
+		r.m[3][3] = 1;
+
+		return r;
+	}
+
 	//Quaternionバージョン
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate) {
 
-		Matrix4x4 resultX = MakeRotateXMatrix(rotate.x * rotate.w);
-		Matrix4x4 resultY = MakeRotateYMatrix(rotate.y * rotate.w);
-		Matrix4x4 resultZ = MakeRotateZMatrix(rotate.z * rotate.w);
-
-		Matrix4x4 rotateXYZ = Multiply(resultX, Multiply(resultY, resultZ));
+		Matrix4x4 rotateXYZ = MakeQuaternionRotateMatrix(rotate);
 
 
 		Matrix4x4 result;
@@ -548,45 +576,6 @@ namespace MyMath {
 		}
 		return (*keyframes.keyframes.rbegin()).value;
 	}	
-	
-	Vector3 CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time) {
-		assert(!keyframes.keyframes.empty());
-		if (keyframes.keyframes.size() == 1 || time <= keyframes.keyframes[0].time) {
-			return { keyframes.keyframes[0].value.x,keyframes.keyframes[0].value.y ,keyframes.keyframes[0].value.z };
-		}
-		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
-			size_t nextIndex = index + 1;
-			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
-				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
-				
-				Vector3 Vector;
-				Vector3 NextVector;
-
-				///ここはradianをかける
-				Vector = { 
-					keyframes.keyframes[index].value.x * std::numbers::pi_v<float> * 2,
-					keyframes.keyframes[index].value.y * std::numbers::pi_v<float> * 2,
-					keyframes.keyframes[index].value.z * std::numbers::pi_v<float> * 2
-				};
-				NextVector = {
-					keyframes.keyframes[nextIndex].value.x * std::numbers::pi_v<float> * 2,
-					keyframes.keyframes[nextIndex].value.y * std::numbers::pi_v<float> * 2,
-					keyframes.keyframes[nextIndex].value.z * std::numbers::pi_v<float> * 2
-				};
-
-
-				return Lerp(Vector,NextVector, t);
-			}
-		}
-		
-		Vector3 result = {
-			(*keyframes.keyframes.rbegin()).value.x,
-			(*keyframes.keyframes.rbegin()).value.y,
-			(*keyframes.keyframes.rbegin()).value.z
-		};
-
-		return result;
-	}
 
 	Quaternion CalculateValueQuaternion(const AnimationCurve<Quaternion>& keyframes, float time) {
 		assert(!keyframes.keyframes.empty());

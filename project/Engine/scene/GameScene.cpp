@@ -6,16 +6,18 @@ void GameScene::Initialize() {
 	//ModelManager::GetInstance()->LoadModel("plane.obj");
 	//ModelManager::GetInstance()->LoadModel("grass01");
 	//ModelManager::GetInstance()->LoadModel("TwoSidedPlane.gltf");
-	ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf");
-	ModelManager::GetInstance()->LoadModel("MyBoxRotate.gltf");
+	//ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf");
+	//ModelManager::GetInstance()->LoadModel("MyBoxRotate.gltf");
 	ModelManager::GetInstance()->LoadModel("simpleSkin.gltf");
+	ModelManager::GetInstance()->LoadModel("sneakWalk.gltf");
+	ModelManager::GetInstance()->LoadModel("walk.gltf");
 
 
 	camera = new Camera();
 	//Vector3 cameraRotate = { 1.4f,0.0f,0.0f };
 	//Vector3 cameraTranslate = { 0.0f,30.0f,-8.0f };
-	cameraRotate = { 0.3f,0.0f,0.0f };
-	cameraTranslate = { 0.0f,6.0f,-18.0f };
+	//cameraRotate = { 0.3f,0.0f,0.0f };
+	cameraTranslate = { 0.0f,1.0f,-11.0f };
 
 	camera->SetRotate(cameraRotate);
 	camera->SetTranslate(cameraTranslate);

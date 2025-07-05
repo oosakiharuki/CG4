@@ -224,6 +224,9 @@ namespace MyMath {
 	Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2);
 
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+	
+	//Quaternion.ver
+	Matrix4x4 MakeQuaternionRotateMatrix(const Quaternion& quaternion);
 	Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate);
 #pragma endregion
 
