@@ -580,14 +580,14 @@ namespace MyMath {
 	Quaternion CalculateValueQuaternion(const AnimationCurve<Quaternion>& keyframes, float time) {
 		assert(!keyframes.keyframes.empty());
 		if (keyframes.keyframes.size() == 1 || time <= keyframes.keyframes[0].time) {
-			return { keyframes.keyframes[0].value.x,keyframes.keyframes[0].value.y ,keyframes.keyframes[0].value.z };
+			return { keyframes.keyframes[0].value.x,keyframes.keyframes[0].value.y ,keyframes.keyframes[0].value.z,keyframes.keyframes[0].value.w };
 		}
 		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
 			size_t nextIndex = index + 1;
 			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
 				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
 
-				return Slerp(keyframes.keyframes[index].value, keyframes.keyframes[nextIndex].value, t);
+				return Lerp(keyframes.keyframes[index].value, keyframes.keyframes[nextIndex].value, t);
 			}
 		}
 
@@ -602,6 +602,17 @@ namespace MyMath {
 		Vector3	c = { a.x + b.x,a.y + b.y,a.z + b.z };
 
 		return c;
+	}
+
+	Quaternion Lerp(const Quaternion& p0, const Quaternion& p1, float t) {
+
+		Vector3 a = { t * p0.x ,t * p0.y ,t * p0.z };
+		Vector3 b = { (1.0f - t) * p1.x,(1.0f - t) * p1.y,(1.0f - t) * p1.z };
+		Vector3	c = { a.x + b.x,a.y + b.y,a.z + b.z };
+
+		Quaternion result = { c.x,c.y,c.z,p0.w };
+
+		return result;
 	}
 
 	Skeleton CreateSkeltion(const Node& rootNode) {

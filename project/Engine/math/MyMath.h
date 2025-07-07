@@ -244,6 +244,7 @@ namespace MyMath {
 	Quaternion CalculateValueQuaternion(const AnimationCurve<Quaternion>& keyframes, float time);
 
 	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t);
+	Quaternion Lerp(const Quaternion& p0, const Quaternion& p1, float t);
 
 	Quaternion operator-(const Quaternion& q);
 	Quaternion operator*(const float f, const Quaternion& q);
