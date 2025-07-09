@@ -11,19 +11,20 @@ void GameScene::Initialize() {
 	ModelManager::GetInstance()->LoadModel("simpleSkin.gltf");
 	ModelManager::GetInstance()->LoadModel("sneakWalk.gltf");
 	ModelManager::GetInstance()->LoadModel("walk.gltf");
+	ModelManager::GetInstance()->LoadModel("stop.gltf");
 
 
-	camera = new Camera();
-	//Vector3 cameraRotate = { 1.4f,0.0f,0.0f };
-	//Vector3 cameraTranslate = { 0.0f,30.0f,-8.0f };
-	//cameraRotate = { 0.3f,0.0f,0.0f };
-	cameraTranslate = { 0.0f,1.0f,-11.0f };
+	//camera = new Camera();
+	////Vector3 cameraRotate = { 1.4f,0.0f,0.0f };
+	////Vector3 cameraTranslate = { 0.0f,30.0f,-8.0f };
+	////cameraRotate = { 0.3f,0.0f,0.0f };
+	//cameraTranslate = { 0.0f,1.0f,-11.0f };
 
-	camera->SetRotate(cameraRotate);
-	camera->SetTranslate(cameraTranslate);
-	
-	Object3dCommon::GetInstance()->SetDefaultCamera(camera);
-	ParticleCommon::GetInstance()->SetDefaultCamera(camera);
+	//camera->SetRotate(cameraRotate);
+	//camera->SetTranslate(cameraTranslate);
+	//
+	//Object3dCommon::GetInstance()->SetDefaultCamera(camera);
+	//ParticleCommon::GetInstance()->SetDefaultCamera(camera);
 
  	testClass = new TestClass();
  	testClass->Init();
@@ -56,7 +57,6 @@ void GameScene::Update() {
 	particle->Update();
 
 
-	camera->Update();
 
 #ifdef  USE_IMGUI
 
@@ -65,19 +65,19 @@ void GameScene::Update() {
 	//開発用UIの処理
 	//ImGui::ShowDemoWindow();
 
-	ImGui::Begin("camera");
-	ImGui::Text("ImGuiText");
+	//ImGui::Begin("camera");
+	//ImGui::Text("ImGuiText");
 
-	//カメラ
-	ImGui::SliderFloat3("cameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
+	////カメラ
+	//ImGui::SliderFloat3("cameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
 
-	ImGui::SliderFloat("cameraRotateX", &cameraRotate.x, -10.0f, 10.0f);
-	ImGui::SliderFloat("cameraRotateY", &cameraRotate.y, -10.0f, 10.0f);
-	ImGui::SliderFloat("cameraRotateZ", &cameraRotate.z, -10.0f, 10.0f);
-	camera->SetRotate(cameraRotate);
-	camera->SetTranslate(cameraTranslate);
+	//ImGui::SliderFloat("cameraRotateX", &cameraRotate.x, -10.0f, 10.0f);
+	//ImGui::SliderFloat("cameraRotateY", &cameraRotate.y, -10.0f, 10.0f);
+	//ImGui::SliderFloat("cameraRotateZ", &cameraRotate.z, -10.0f, 10.0f);
+	//camera->SetRotate(cameraRotate);
+	//camera->SetTranslate(cameraTranslate);
 
-	ImGui::End();
+	//ImGui::End();
 #endif //  USE_IMGUI
 }
 
@@ -103,7 +103,6 @@ void GameScene::Draw() {
 }
 
 void GameScene::Finalize() {	
-	delete camera;
 	delete testClass;
 	delete particle;
 }

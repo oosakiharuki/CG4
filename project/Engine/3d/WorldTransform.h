@@ -1,7 +1,6 @@
 #pragma once
 #include"Vector3.h"
 #include "Matrix4x4.h"
-#include "Camera.h"
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataWorldTransform {
