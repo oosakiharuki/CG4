@@ -257,4 +257,7 @@ namespace MyMath {
 	int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 
 	Matrix4x4 Transpose(Matrix4x4 m);
+
+	VertexData AddVert(const VertexData& v1, const VertexData& v2);
+
 }

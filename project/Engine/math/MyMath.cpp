@@ -734,5 +734,16 @@ namespace MyMath {
 		return result;
 	}
 
+	VertexData AddVert(const VertexData& v1, const VertexData& v2) {
+		VertexData result{};
+
+		result.position.x = v1.position.x + v2.position.x;
+		result.position.y = v1.position.y + v2.position.y;
+		result.position.z = v1.position.z + v2.position.z;
+		result.position.s = v1.position.s + v2.position.s;
+		result.texcoord.x = v1.texcoord.x + v2.texcoord.x;
+		result.texcoord.y = v1.texcoord.y + v2.texcoord.y;
+		return result;
+	}
 
 }

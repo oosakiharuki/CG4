@@ -6,9 +6,8 @@
 
 class SphereModel {
 public:
-	void Initialize(Camera* camera);
-	void Update(Vector3 scale, Quaternion rotate, Vector3 translate);
-	void Update(Vector3 scale, Quaternion rotate, Vector3 translate, Matrix4x4 parent);
+	void Initialize();
+	void Update(Matrix4x4 matworld);
 
 	void Draw();
 
@@ -19,19 +18,10 @@ public:
 	};
 
 
-	VertexData AddVert(const VertexData& v1, const VertexData& v2) {
-		VertexData result{};
+	void CreateSphere();
 
-		result.position.x = v1.position.x + v2.position.x;
-		result.position.y = v1.position.y + v2.position.y;
-		result.position.z = v1.position.z + v2.position.z;
-		result.position.s = v1.position.s + v2.position.s;
-		result.texcoord.x = v1.texcoord.x + v2.texcoord.x;
-		result.texcoord.y = v1.texcoord.y + v2.texcoord.y;
-		return result;
-	}
+	void SetColor(Vector4 color) { color_ = color; }
 
-	void DrawSphere();
 private:
 
 	DebugWireframes* debugWireframes = nullptr;
@@ -55,4 +45,6 @@ private:
 	Material* materialData = nullptr;
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+
+	Vector4 color_ = { 1,1,1,1 };
 };

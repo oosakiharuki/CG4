@@ -42,7 +42,7 @@ public:
 	const Vector3& GetTranslate()const { return transform.translate; }
 
 	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
-	void SkeletonUpdate(Skeleton& skeleton);
+	void SkeletonUpdate(Skeleton& skeleton,Matrix4x4 matrix);
 	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
 
 private:
@@ -90,4 +90,5 @@ private:
 	std::vector<SphereModel*> debugSphere;
 	void SetWireframe();
 
+	bool isChange = false;
 };

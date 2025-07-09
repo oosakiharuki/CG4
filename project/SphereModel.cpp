@@ -3,10 +3,10 @@
 
 using namespace MyMath;
 
-void SphereModel::Initialize(Camera* camera) {
+void SphereModel::Initialize() {
 	this->debugWireframes = DebugWireframes::GetInstance();
 
-	DrawSphere();
+	CreateSphere();
 
 	vertexResource = debugWireframes->GetDirectXCommon()->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
 	
@@ -24,7 +24,7 @@ void SphereModel::Initialize(Camera* camera) {
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	//色の設定
 	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialData->enableLighting = true;
+	materialData->enableLighting = false;
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->shininess = 70;
 
@@ -35,7 +35,7 @@ void SphereModel::Initialize(Camera* camera) {
 
 
 
-	this->camera = camera;
+	this->camera = debugWireframes->GetDefaultCamera();
 	wvpResource = debugWireframes->GetDirectXCommon()->CreateBufferResource(sizeof(TransformationMatrix));
 	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
 
@@ -50,63 +50,35 @@ void SphereModel::Initialize(Camera* camera) {
 
 }
 
-
-
-void SphereModel::Update(Vector3 scale, Quaternion rotate, Vector3 translate) {
-	Matrix4x4 worldTransform;
-
-	Vector3 scaleSmall = { scale.x / 2,scale.y / 2 ,scale.z / 2 };
-
-	worldTransform = MakeAffineMatrix(scaleSmall, rotate, translate);
+void SphereModel::Update(Matrix4x4 matworld) {
 
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = worldTransform * projectionMatrix;
+		WorldViewProjectionMatrix = matworld * projectionMatrix;
 	}
 	else {
-		WorldViewProjectionMatrix = worldTransform;
+		WorldViewProjectionMatrix = matworld;
 	}
 
-	wvpData->World = worldTransform;
+	wvpData->World = matworld;
 	//wvpData->World = worldMatrix;
 	wvpData->WVP = WorldViewProjectionMatrix;
 
-}
-
-void SphereModel::Update(Vector3 scale, Quaternion rotate, Vector3 translate, Matrix4x4 parent) {
-	Matrix4x4 worldTransform;
-
-	Vector3 scaleSmall = { scale.x / 2,scale.y / 2 ,scale.z / 2 };
-
-	worldTransform = parent * MakeAffineMatrix(scaleSmall, rotate, translate);
-
-	Matrix4x4 WorldViewProjectionMatrix;
-	if (camera) {
-		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = worldTransform * projectionMatrix;
-	}
-	else {
-		WorldViewProjectionMatrix = worldTransform;
-	}
-
-	wvpData->World = worldTransform;
-	//wvpData->World = worldMatrix;
-	wvpData->WVP = WorldViewProjectionMatrix;
+	materialData->color = color_;
 
 }
 
 void SphereModel::Draw() {
 	debugWireframes->GetDirectXCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 	debugWireframes->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress()); //rootParameterの配列の0番目 [0]
-	debugWireframes->GetDirectXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textureFilePath));
-	debugWireframes->GetDirectXCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
-	
 	debugWireframes->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
+	debugWireframes->GetDirectXCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textureFilePath));	
 	debugWireframes->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(4, cameraResource->GetGPUVirtualAddress());
+	debugWireframes->GetDirectXCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 }
 
-void SphereModel::DrawSphere() {
+void SphereModel::CreateSphere() {
 
 	const uint32_t kSubdivision = 16;
 

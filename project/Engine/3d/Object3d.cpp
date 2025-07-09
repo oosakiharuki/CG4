@@ -93,7 +93,7 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	animationTime = std::fmod(animationTime, animation.duration);
 
 	ApplyAnimation(skeleton, animation, animationTime);
-	SkeletonUpdate(skeleton);
+	SkeletonUpdate(skeleton,worldTransform.matWorld_);
 	SkinClusterUpdate(skinCluster, skeleton);
 
 
@@ -129,14 +129,13 @@ void Object3d::Draw() {
 		model->Draw();
 	}
 
-	//DebugWireframes::GetInstance()->Command();
+	DebugWireframes::GetInstance()->Command();
 
-	////debug
-	//for (auto it : debugSphere) {
-	//	it->Draw();
-	//}
+	for (auto it : debugSphere) {
+		it->Draw();
+	}
 
-	//Object3dCommon::GetInstance()->Command();
+	Object3dCommon::GetInstance()->Command();
 
 }
 
@@ -153,22 +152,33 @@ void Object3d::Draw(const std::string& textureData) {
 }
 
 void Object3d::SetModelFile(const std::string& filePath) {
+
+	if (isChange) {
+		//違うアニメーションに変えるとき
+		for (auto sphere : debugSphere) {
+			delete sphere;
+		}	
+		debugSphere.clear();
+	}
+
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
 	skeleton = model->GetSkeleton();
 	skinCluster = model->GetSkinCluster();
 
-	SkeletonUpdate(skeleton);
-	SkinClusterUpdate(skinCluster,skeleton);
-
 	//デバッグワイヤーフレーム
 	//親ノード
 	//SetWireframe();
 	//子ノード
-	for (uint32_t childIndex = 0; childIndex < modelData.rootNode.children.size(); ++childIndex) {
+	for (uint32_t childIndex = 0; childIndex < skeleton.joints.size(); ++childIndex) {
 		SetWireframe();
 	}
+
+	//SkeletonUpdate(skeleton);
+	//SkinClusterUpdate(skinCluster,skeleton);
+
+	isChange = true;
 }
 
 void Object3d::LightSwitch(bool isLight) {
@@ -191,27 +201,20 @@ void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, fl
 }
 
 
-void Object3d::SkeletonUpdate(Skeleton& skeleton) {
+void Object3d::SkeletonUpdate(Skeleton& skeleton, Matrix4x4 matrix) {
+	int i = 0;//一から順番に
 	for (Joint& joint : skeleton.joints) {
 		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
 		if (joint.parent) {
 			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
+			debugSphere[i]->Update(joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix);
 		}
 		else {
 			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
+			debugSphere[i]->Update(joint.localMatrix);
 		}
-
-		bool isChild = false;
-		for (auto i : debugSphere) {
-			if (isChild) {
-				i->Update(joint.transform.scale, joint.transform.rotate, joint.transform.translate, joint.skeletonSpaceMatrix);
-			}
-			else {
-				i->Update(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
-			}
-			isChild = true;
-		}
-	}		
+		i++;
+	}
 }
 
 void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skeleton) {
@@ -226,7 +229,7 @@ void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skele
 
 void Object3d::SetWireframe() {
 	SphereModel* sphere = new SphereModel();
-	sphere->Initialize(camera);
+	sphere->Initialize();
 
 	debugSphere.push_back(sphere);
 }

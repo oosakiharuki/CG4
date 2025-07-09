@@ -29,6 +29,7 @@ void TestClass::Init() {
 
 	Object3dCommon::GetInstance()->SetDefaultCamera(camera);
 	ParticleCommon::GetInstance()->SetDefaultCamera(camera);
+	DebugWireframes::GetInstance()->SetDefaultCamera(camera);
 
 	worldTransform_.Initialize();
 	worldTransform2_.Initialize();
