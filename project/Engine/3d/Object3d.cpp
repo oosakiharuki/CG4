@@ -94,14 +94,13 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	
 	if (isChange) {
 		animationTime2 += 1.0f / 60.0f;
-		Interpolation(skeleton, animation, animation2, animationTime2);	
 		
 		if (animationTime2 >= animation.duration) {
 			isChange = false;
 			animationTime2 = 0;
 		}
-		SkeletonUpdate(skeleton2);
-		SkinClusterUpdate(skinCluster2, skeleton2);
+
+		Interpolation(skeleton, animation, animation2, animationTime2);	
 	}
 	else {
 		ApplyAnimation(skeleton, animation, animationTime);
@@ -252,6 +251,9 @@ void Object3d::ChangeAnimation(const std::string& filePath) {
 	skeleton2 = skeleton;
 	skinCluster2 = skinCluster;
 
+	SkeletonUpdate(skeleton2);
+	SkinClusterUpdate(skinCluster2, skeleton2);
+
 	//変更するアニメーションデータ
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
@@ -262,6 +264,12 @@ void Object3d::ChangeAnimation(const std::string& filePath) {
 	SkeletonUpdate(skeleton);
 	SkinClusterUpdate(skinCluster, skeleton);
 	
+
+	if (isChange) {
+		animationTime2 = 1 - animationTime2;
+	}
+
+
 	isChange = true;
 
 }

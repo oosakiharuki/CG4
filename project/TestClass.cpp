@@ -96,10 +96,10 @@ void TestClass::Update() {
 		velocity.y += 0.5f;
 	}
 	
-	if (input->PushKey(DIK_K) && !isJump) {
-		isJump = true;
-		velocity.y += 0.5f;
-	}
+	//if (input->PushKey(DIK_K) && !isJump) {
+	//	isJump = true;
+	//	velocity.y += 0.5f;
+	//}
 
 	if (input->PushKey(DIK_A)) {
 		isWalk = true;
@@ -121,7 +121,7 @@ void TestClass::Update() {
 	}
 
 
-	if (isJump) {
+	if (input->PushKey(DIK_K)) {
 		mosion = jump;
 	}
 	else if(isWalk){

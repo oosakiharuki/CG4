@@ -569,6 +569,7 @@ namespace MyMath {
 		}
 		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
 			size_t nextIndex = index + 1;
+			//jointが動いていたら
 			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
 				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
 				return Lerp(keyframes.keyframes[index].value, keyframes.keyframes[nextIndex].value, t);
@@ -584,6 +585,7 @@ namespace MyMath {
 		}
 		for (size_t index = 0; index < keyframes.keyframes.size() - 1; ++index) {
 			size_t nextIndex = index + 1;
+			//jointが動いていたら
 			if (keyframes.keyframes[index].time <= time && time <= keyframes.keyframes[nextIndex].time) {
 				float t = (time - keyframes.keyframes[index].time) / (keyframes.keyframes[nextIndex].time - keyframes.keyframes[index].time);
 
@@ -597,27 +599,71 @@ namespace MyMath {
 
 	Vector3 InterpolationValue(const AnimationCurve<Vector3>& key1, const AnimationCurve<Vector3>& key2, float time) {
 		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
-		if (key1.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
+		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time || 
+			key2.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
 			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z };
 		}
-		for (size_t index = 0; index < key2.keyframes.size(); ++index) {
-			return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
+
+		Vector3 animation1, animation2;
+
+		for (size_t index = 0; index < key1.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			//jointが動いていたら
+			if (key1.keyframes[index].time <= time && time <= key1.keyframes[nextIndex].time) {
+				float t = (time - key1.keyframes[index].time) / (key1.keyframes[nextIndex].time - key1.keyframes[index].time);
+				animation1 =  Lerp(key1.keyframes[index].value, key1.keyframes[nextIndex].value, t);
+			}
 		}
 
-		return (*key1.keyframes.rbegin()).value;
 
+		for (size_t index = 0; index < key2.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			//jointが動いていたら
+			if (key2.keyframes[index].time <= time && time <= key2.keyframes[nextIndex].time) {
+				float t = (time - key2.keyframes[index].time) / (key2.keyframes[nextIndex].time - key2.keyframes[index].time);
+				animation2 = Lerp(key2.keyframes[index].value, key2.keyframes[nextIndex].value, t);
+			}
+		}
+
+		return Lerp(animation1 ,animation2, time);
 	}
 
 	Quaternion InterpolationValueQuaternion(const AnimationCurve<Quaternion>& key1, const AnimationCurve<Quaternion>& key2, float time) {
 		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
-		if (key1.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
+		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time || 
+			key2.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
 			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z,key1.keyframes[0].value.w };
 		}
-		for (size_t index = 0; index < key2.keyframes.size(); ++index) {
-			return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
+
+		Quaternion animation1, animation2;
+
+		for (size_t index = 0; index < key1.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			if (key1.keyframes[index].time <= time && time <= key1.keyframes[nextIndex].time) {
+				float t = (time - key1.keyframes[index].time) / (key1.keyframes[nextIndex].time - key1.keyframes[index].time);
+				animation1 = Lerp(key1.keyframes[index].value, key1.keyframes[nextIndex].value, t);
+				break;
+			}
 		}
 
-		return (*key1.keyframes.rbegin()).value;
+
+		for (size_t index = 0; index < key2.keyframes.size() - 1; ++index) {
+			size_t nextIndex = index + 1;
+			if (key2.keyframes[index].time <= time && time <= key2.keyframes[nextIndex].time) {
+				float t = (time - key2.keyframes[index].time) / (key2.keyframes[nextIndex].time - key2.keyframes[index].time);
+				animation2 = Lerp(key2.keyframes[index].value, key2.keyframes[nextIndex].value, t);
+			}
+		}
+
+		return Lerp(animation1, animation2, time);
+		 
+		
+		//for (size_t index = 0; index < key2.keyframes.size(); ++index) {
+		//	return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
+		//}
+
+		//return (*key1.keyframes.rbegin()).value;
+
 	}
 
 
