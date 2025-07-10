@@ -86,8 +86,9 @@ private:
 	Animation animation;
 	///アニメーションタイマー
 	float animationTime = 0.0f;
-	float animationTime2 = 0.0f;
-
+	/// 補間タイマー
+	float changeTime = 0.0f;
+	
 	Skeleton skeleton;
 	SkinCluster skinCluster;
 
@@ -96,9 +97,5 @@ private:
 
 	bool isChange = false;
 
-	Model* model2 = nullptr;
-	ModelData modelData2;
-	Animation animation2;
-	Skeleton skeleton2;
-	SkinCluster skinCluster2;
+	Animation animationNext;
 };

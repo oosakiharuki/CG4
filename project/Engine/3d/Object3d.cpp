@@ -93,14 +93,14 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	animationTime = std::fmod(animationTime, animation.duration);
 	
 	if (isChange) {
-		animationTime2 += 1.0f / 60.0f;
-		
-		if (animationTime2 >= animation.duration) {
+		changeTime += 1.0f / 60.0f;
+		if (changeTime >= animationNext.duration) {
 			isChange = false;
-			animationTime2 = 0;
+			changeTime = 0;
 		}
-
-		Interpolation(skeleton, animation, animation2, animationTime2);	
+		else {	
+			Interpolation(skeleton, animationNext, animation, changeTime);
+		}
 	}
 	else {
 		ApplyAnimation(skeleton, animation, animationTime);
@@ -245,14 +245,7 @@ void Object3d::ChangeAnimation(const std::string& filePath) {
 	}
 
 	//変わる前のアニメーションデータ
-	model2 = model;
-	modelData2 = modelData;
-	animation2 = animation;
-	skeleton2 = skeleton;
-	skinCluster2 = skinCluster;
-
-	SkeletonUpdate(skeleton2);
-	SkinClusterUpdate(skinCluster2, skeleton2);
+	animationNext = animation;
 
 	//変更するアニメーションデータ
 	model = ModelManager::GetInstance()->FindModel(filePath);
@@ -261,16 +254,27 @@ void Object3d::ChangeAnimation(const std::string& filePath) {
 	skeleton = model->GetSkeleton();
 	skinCluster = model->GetSkinCluster();
 	
+	//animationTimeを1.0f/60.0fに
+	//Sleapなどで0より小さい値を出さないようにする
+	//はじめは少しカクつくが、アニメーション補間が終えた後がスムーズ
+	changeTime += 1.0f / 60.0f;
+	animationTime = changeTime;
+
+	Interpolation(skeleton, animation, animationNext,changeTime);
 	SkeletonUpdate(skeleton);
 	SkinClusterUpdate(skinCluster, skeleton);
 	
-
+	//アニメーション補間中に変更があった時
 	if (isChange) {
-		animationTime2 = 1 - animationTime2;
+		changeTime = 0.9f - animationTime;
 	}
 
-
 	isChange = true;
+
+	//Sleapなどで1より大きい値を出さないようにする
+	if (animationNext.duration > 1.0f) {
+		animationNext.duration = 0.9f;
+	}
 
 }
 
@@ -281,7 +285,7 @@ void Object3d::Interpolation(Skeleton& skeleton, const Animation& animation, con
 			if (auto itB = nextAnimation.nodeAnimations.find(joint.name); itB != nextAnimation.nodeAnimations.end()) {
 				const NodeAnimation& rootNodeAnimation = (*itA).second;
 				const NodeAnimation& nextRootNodeAnimation = (*itB).second;
-				joint.transform.translate = InterpolationValue(rootNodeAnimation.translate,nextRootNodeAnimation.translate, animationTime);
+				joint.transform.translate = InterpolationValue(nextRootNodeAnimation.translate,rootNodeAnimation.translate, animationTime);//nextと逆にする()
 				joint.transform.rotate = InterpolationValueQuaternion(rootNodeAnimation.rotate, nextRootNodeAnimation.rotate, animationTime);
 				joint.transform.scale = InterpolationValue(rootNodeAnimation.scale, nextRootNodeAnimation.scale, animationTime);
 

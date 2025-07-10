@@ -599,9 +599,9 @@ namespace MyMath {
 
 	Vector3 InterpolationValue(const AnimationCurve<Vector3>& key1, const AnimationCurve<Vector3>& key2, float time) {
 		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
-		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time || 
+		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time ||
 			key2.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
-			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z };
+			return { key2.keyframes[0].value };
 		}
 
 		Vector3 animation1, animation2;
@@ -630,9 +630,9 @@ namespace MyMath {
 
 	Quaternion InterpolationValueQuaternion(const AnimationCurve<Quaternion>& key1, const AnimationCurve<Quaternion>& key2, float time) {
 		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
-		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time || 
+		if (key1.keyframes.size() == 1 || time <= key1.keyframes[0].time ||
 			key2.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
-			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z,key1.keyframes[0].value.w };
+			return { key1.keyframes[0].value };
 		}
 
 		Quaternion animation1, animation2;
@@ -642,7 +642,6 @@ namespace MyMath {
 			if (key1.keyframes[index].time <= time && time <= key1.keyframes[nextIndex].time) {
 				float t = (time - key1.keyframes[index].time) / (key1.keyframes[nextIndex].time - key1.keyframes[index].time);
 				animation1 = Lerp(key1.keyframes[index].value, key1.keyframes[nextIndex].value, t);
-				break;
 			}
 		}
 
@@ -655,22 +654,8 @@ namespace MyMath {
 			}
 		}
 
-		return Lerp(animation1, animation2, time);
-		 
-		
-		//for (size_t index = 0; index < key2.keyframes.size(); ++index) {
-		//	return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
-		//}
-
-		//return (*key1.keyframes.rbegin()).value;
-
+		return Slerp(animation1, animation2, time);
 	}
-
-
-
-
-
-
 
 
 	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t) {
@@ -773,6 +758,10 @@ namespace MyMath {
 		if (dot < 0) {
 			q3 = -q0;
 			dot = -dot;
+		}
+
+		if (dot >= 1.0f - FLT_EPSILON) {
+			return (1.0f - t) * q3 + t * q1;
 		}
 
 		float theta = std::acos(dot);

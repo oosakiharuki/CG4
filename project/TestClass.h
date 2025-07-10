@@ -41,6 +41,8 @@ private:
 	Vector3 velocity;
 
 	bool isWalk = false;
+	float preX;
+	float preZ;
 
 	bool isChangeMosion = false;
 

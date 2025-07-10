@@ -66,6 +66,19 @@ void TestClass::Update() {
 			z = 0.0f;
 		worldTransform_.translation_.x += x / 10;
 		worldTransform_.translation_.z += z / 10;
+
+		//動いている
+		if (worldTransform_.translation_.x != preX ||
+			worldTransform_.translation_.z != preZ) {
+			isWalk = true;
+		}
+		else {
+			isWalk = false;
+		}
+
+		preX = worldTransform_.translation_.x;
+		preZ = worldTransform_.translation_.z;
+
 	}
 
 	//まだ
@@ -101,12 +114,12 @@ void TestClass::Update() {
 	//	velocity.y += 0.5f;
 	//}
 
-	if (input->PushKey(DIK_A)) {
-		isWalk = true;
-	}
-	else {
-		isWalk = false;
-	}
+	//if (input->PushKey(DIK_A)) {
+	//	isWalk = true;
+	//}
+	//else {
+	//	isWalk = false;
+	//}
 
 	if (isJump) {
 		float grabity = -0.02f;
