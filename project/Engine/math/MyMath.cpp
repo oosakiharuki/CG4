@@ -595,6 +595,38 @@ namespace MyMath {
 	}
 
 
+	Vector3 InterpolationValue(const AnimationCurve<Vector3>& key1, const AnimationCurve<Vector3>& key2, float time) {
+		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
+		if (key1.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
+			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z };
+		}
+		for (size_t index = 0; index < key2.keyframes.size(); ++index) {
+			return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
+		}
+
+		return (*key1.keyframes.rbegin()).value;
+
+	}
+
+	Quaternion InterpolationValueQuaternion(const AnimationCurve<Quaternion>& key1, const AnimationCurve<Quaternion>& key2, float time) {
+		assert(!key1.keyframes.empty() || !key2.keyframes.empty());
+		if (key1.keyframes.size() == 1 || time <= key2.keyframes[0].time) {
+			return { key1.keyframes[0].value.x,key1.keyframes[0].value.y ,key1.keyframes[0].value.z,key1.keyframes[0].value.w };
+		}
+		for (size_t index = 0; index < key2.keyframes.size(); ++index) {
+			return Lerp(key1.keyframes[index].value, key2.keyframes[index].value, time);
+		}
+
+		return (*key1.keyframes.rbegin()).value;
+	}
+
+
+
+
+
+
+
+
 	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t) {
 
 		Vector3 a = { t * p0.x ,t * p0.y ,t * p0.z };

@@ -42,8 +42,11 @@ public:
 	const Vector3& GetTranslate()const { return transform.translate; }
 
 	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
-	void SkeletonUpdate(Skeleton& skeleton,Matrix4x4 matrix);
+	void Interpolation(Skeleton& skeleton, const Animation& animation, const Animation& nextAnimation, float animationTime);
+	void SkeletonUpdate(Skeleton& skeleton);
 	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
+
+	void ChangeAnimation(const std::string& filePath);
 
 private:
 	Object3dCommon* object3dCommon = nullptr;
@@ -83,6 +86,7 @@ private:
 	Animation animation;
 	///アニメーションタイマー
 	float animationTime = 0.0f;
+	float animationTime2 = 0.0f;
 
 	Skeleton skeleton;
 	SkinCluster skinCluster;
@@ -91,4 +95,10 @@ private:
 	void SetWireframe();
 
 	bool isChange = false;
+
+	Model* model2 = nullptr;
+	ModelData modelData2;
+	Animation animation2;
+	Skeleton skeleton2;
+	SkinCluster skinCluster2;
 };

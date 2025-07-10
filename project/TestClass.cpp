@@ -12,7 +12,6 @@ TestClass::TestClass(){}
 
 TestClass::~TestClass() {
 	delete object_;
-	delete object2_;
 	delete camera;
 
 }
@@ -32,24 +31,18 @@ void TestClass::Init() {
 	DebugWireframes::GetInstance()->SetDefaultCamera(camera);
 
 	worldTransform_.Initialize();
-	worldTransform2_.Initialize();
 
 	object_ = new Object3d();
 	object_->Initialize();
 	object_->SetModelFile("stop.gltf");
-	
-	object2_ = new Object3d();
-	object2_->Initialize();
-	object2_->SetModelFile("sneakWalk.gltf");
 
 	worldTransform_.translation_.y = 0.0f;
-	worldTransform2_.translation_.x = 3.0f;
 	//worldTransform_.rotation_.x = -1.277f;
 
 	input = Input::GetInstance();
 
 	//worldTransformを親クラスに
-	camera->SetParent(&worldTransform_);
+	//camera->SetParent(&worldTransform_);
 }
 
 void TestClass::Update() {
@@ -147,15 +140,15 @@ void TestClass::Update() {
 		switch (mosion)
 		{
 		case TestClass::stop:
-			object_->SetModelFile("stop.gltf");
+			object_->ChangeAnimation("stop.gltf");
 			isChangeMosion = false;
 			break;
 		case TestClass::walk:
-			object_->SetModelFile("walk.gltf");
+			object_->ChangeAnimation("walk.gltf");
 			isChangeMosion = false;
 			break;
 		case TestClass::jump:
-			object_->SetModelFile("sneakWalk.gltf");
+			object_->ChangeAnimation("sneakWalk.gltf");
 			isChangeMosion = false;
 			break;
 		}
@@ -180,21 +173,6 @@ void TestClass::Update() {
 
 	ImGui::End();
 
-
-	ImGui::Begin("TestModel2");
-
-	ImGui::InputFloat3("VertexModel", &worldTransform2_.translation_.x);
-	ImGui::SliderFloat3("SliderVertexModel", &worldTransform2_.translation_.x, -5.0f, 5.0f);
-
-	ImGui::InputFloat3("RotateModel", &worldTransform2_.rotation_.x);
-	ImGui::SliderFloat3("SliderRotateModel", &worldTransform2_.rotation_.x, -10.0f, 10.0f);
-
-	ImGui::InputFloat3("ScaleModel", &worldTransform2_.scale_.x);
-	ImGui::SliderFloat3("SliderScaleModel", &worldTransform2_.scale_.x, 0.5f, 5.0f);
-
-	ImGui::End();
-
-
 	ImGui::Begin("camera");
 
 	//カメラ
@@ -212,16 +190,13 @@ void TestClass::Update() {
 	object_->LightSwitch(onLight);
 
 	worldTransform_.UpdateMatrix();
-	worldTransform2_.UpdateMatrix();
 
 	camera->Update();
 
 	object_->Update(worldTransform_);
-	object2_->Update(worldTransform2_);
 }
 
 
 void TestClass::Draw() {
 	object_->Draw();
-	object2_->Draw();
 }

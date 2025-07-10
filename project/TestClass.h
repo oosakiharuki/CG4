@@ -23,9 +23,7 @@ public:
 
 private:
 	WorldTransform worldTransform_;
-	WorldTransform worldTransform2_;
 	Object3d* object_ = nullptr;
-	Object3d* object2_ = nullptr;
 
 	Camera* camera = nullptr;
 	Vector3 cameraRotate = { 0.0f,0.0f,0.0f };

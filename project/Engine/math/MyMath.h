@@ -240,8 +240,10 @@ namespace MyMath {
 
 
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
-	Vector3 CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
 	Quaternion CalculateValueQuaternion(const AnimationCurve<Quaternion>& keyframes, float time);
+
+	Vector3 InterpolationValue(const AnimationCurve<Vector3>& key1, const AnimationCurve<Vector3>& key2, float time);
+	Quaternion InterpolationValueQuaternion(const AnimationCurve<Quaternion>& key1, const AnimationCurve<Quaternion>& key2, float time);
 
 	Vector3 Lerp(const Vector3& p0, const Vector3& p1, float t);
 	Quaternion Lerp(const Quaternion& p0, const Quaternion& p1, float t);

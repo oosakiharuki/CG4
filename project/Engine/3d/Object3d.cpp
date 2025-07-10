@@ -91,9 +91,23 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	//作るときはフレームレートを60FPSにする
 	animationTime += 1.0f / 60.0f;
 	animationTime = std::fmod(animationTime, animation.duration);
+	
+	if (isChange) {
+		animationTime2 += 1.0f / 60.0f;
+		Interpolation(skeleton, animation, animation2, animationTime2);	
+		
+		if (animationTime2 >= animation.duration) {
+			isChange = false;
+			animationTime2 = 0;
+		}
+		SkeletonUpdate(skeleton2);
+		SkinClusterUpdate(skinCluster2, skeleton2);
+	}
+	else {
+		ApplyAnimation(skeleton, animation, animationTime);
+	}
 
-	ApplyAnimation(skeleton, animation, animationTime);
-	SkeletonUpdate(skeleton,worldTransform.matWorld_);
+	SkeletonUpdate(skeleton);
 	SkinClusterUpdate(skinCluster, skeleton);
 
 
@@ -153,14 +167,6 @@ void Object3d::Draw(const std::string& textureData) {
 
 void Object3d::SetModelFile(const std::string& filePath) {
 
-	if (isChange) {
-		//違うアニメーションに変えるとき
-		for (auto sphere : debugSphere) {
-			delete sphere;
-		}	
-		debugSphere.clear();
-	}
-
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
@@ -175,10 +181,9 @@ void Object3d::SetModelFile(const std::string& filePath) {
 		SetWireframe();
 	}
 
-	//SkeletonUpdate(skeleton);
-	//SkinClusterUpdate(skinCluster,skeleton);
+	SkeletonUpdate(skeleton);
+	SkinClusterUpdate(skinCluster,skeleton);
 
-	isChange = true;
 }
 
 void Object3d::LightSwitch(bool isLight) {
@@ -201,7 +206,7 @@ void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, fl
 }
 
 
-void Object3d::SkeletonUpdate(Skeleton& skeleton, Matrix4x4 matrix) {
+void Object3d::SkeletonUpdate(Skeleton& skeleton) {
 	int i = 0;//一から順番に
 	for (Joint& joint : skeleton.joints) {
 		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
@@ -232,4 +237,47 @@ void Object3d::SetWireframe() {
 	sphere->Initialize();
 
 	debugSphere.push_back(sphere);
+}
+
+void Object3d::ChangeAnimation(const std::string& filePath) {
+	
+	if (model == ModelManager::GetInstance()->FindModel(filePath)) {
+		return;
+	}
+
+	//変わる前のアニメーションデータ
+	model2 = model;
+	modelData2 = modelData;
+	animation2 = animation;
+	skeleton2 = skeleton;
+	skinCluster2 = skinCluster;
+
+	//変更するアニメーションデータ
+	model = ModelManager::GetInstance()->FindModel(filePath);
+	modelData = model->GetModelData();
+	animation = model->GetAnimationData();
+	skeleton = model->GetSkeleton();
+	skinCluster = model->GetSkinCluster();
+	
+	SkeletonUpdate(skeleton);
+	SkinClusterUpdate(skinCluster, skeleton);
+	
+	isChange = true;
+
+}
+
+void Object3d::Interpolation(Skeleton& skeleton, const Animation& animation, const Animation& nextAnimation, float animationTime) {
+	for (Joint& joint : skeleton.joints) {
+		//jointにアニメーションがある場合
+		if (auto itA = animation.nodeAnimations.find(joint.name); itA != animation.nodeAnimations.end()) {
+			if (auto itB = nextAnimation.nodeAnimations.find(joint.name); itB != nextAnimation.nodeAnimations.end()) {
+				const NodeAnimation& rootNodeAnimation = (*itA).second;
+				const NodeAnimation& nextRootNodeAnimation = (*itB).second;
+				joint.transform.translate = InterpolationValue(rootNodeAnimation.translate,nextRootNodeAnimation.translate, animationTime);
+				joint.transform.rotate = InterpolationValueQuaternion(rootNodeAnimation.rotate, nextRootNodeAnimation.rotate, animationTime);
+				joint.transform.scale = InterpolationValue(rootNodeAnimation.scale, nextRootNodeAnimation.scale, animationTime);
+
+			}
+		}
+	}
 }
