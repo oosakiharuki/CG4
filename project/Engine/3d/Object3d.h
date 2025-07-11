@@ -30,6 +30,7 @@ public:
 
 	void SetModel(Model* model) { this->model = model; }
 	void SetModelFile(const std::string& filePath);
+	void SetObjFile(const std::string& filePath);
 	void LightSwitch(bool isLight);
 
 	void SetScale(const Vector3& scale) { transform.scale = scale; }
@@ -44,6 +45,7 @@ public:
 	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
 	void Interpolation(Skeleton& skeleton, const Animation& animation, const Animation& nextAnimation, float animationTime);
 	void SkeletonUpdate(Skeleton& skeleton);
+	void SkeletonUpdate(Skeleton& skeleton,const Matrix4x4& matWorld);
 	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
 
 	void ChangeAnimation(const std::string& filePath);
@@ -97,5 +99,6 @@ private:
 
 	bool isChange = false;
 
-	Animation animationNext;
+	//変更前のアニメーション
+	Animation preAnimation;
 };

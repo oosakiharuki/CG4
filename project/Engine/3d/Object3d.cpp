@@ -37,7 +37,7 @@ void Object3d::Initialize() {
 	//色の設定
 	directionalLightSphereData->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightSphereData->direction = { 0.0f,-1.0f,0.0f };
-	directionalLightSphereData->intensity = 0.0f;
+	directionalLightSphereData->intensity = 1.0f;
 
 
 	//Phong Reflection Model
@@ -53,7 +53,7 @@ void Object3d::Initialize() {
 	//設定
 	pointLightData->color = { 1.0f,1.0f,1.0f,1.0f };
 	pointLightData->position = { 0.0f,2.0f,0.0f };
-	pointLightData->intensity = 1.0f;
+	pointLightData->intensity = 0.0f;
 	pointLightData->radius = 5.0f;
 	pointLightData->decay = 1.0f;
 
@@ -94,19 +94,19 @@ void Object3d::Update(const WorldTransform& worldTransform) {
 	
 	if (isChange) {
 		changeTime += 1.0f / 60.0f;
-		if (changeTime >= animationNext.duration) {
+		if (changeTime >= preAnimation.duration) {
 			isChange = false;
 			changeTime = 0;
 		}
 		else {	
-			Interpolation(skeleton, animationNext, animation, changeTime);
+			Interpolation(skeleton, preAnimation, animation, changeTime);
 		}
 	}
 	else {
 		ApplyAnimation(skeleton, animation, animationTime);
 	}
 
-	SkeletonUpdate(skeleton);
+	SkeletonUpdate(skeleton,worldTransform.matWorld_ * MakeTranslateMatrix(Vector3(0,0,-0.2f)));
 	SkinClusterUpdate(skinCluster, skeleton);
 
 
@@ -162,6 +162,15 @@ void Object3d::Draw(const std::string& textureData) {
 	if (model) {
 		model->Draw(textureData);
 	}
+
+	DebugWireframes::GetInstance()->Command();
+
+	for (auto it : debugSphere) {
+		it->Draw();
+	}
+
+	Object3dCommon::GetInstance()->Command();
+
 }
 
 void Object3d::SetModelFile(const std::string& filePath) {
@@ -184,6 +193,13 @@ void Object3d::SetModelFile(const std::string& filePath) {
 	SkinClusterUpdate(skinCluster,skeleton);
 
 }
+
+void Object3d::SetObjFile(const std::string& filePath) {
+	model = ModelManager::GetInstance()->FindModel(filePath);
+	modelData = model->GetModelData();
+}
+
+
 
 void Object3d::LightSwitch(bool isLight) {
 	if (model) {
@@ -221,6 +237,23 @@ void Object3d::SkeletonUpdate(Skeleton& skeleton) {
 	}
 }
 
+void Object3d::SkeletonUpdate(Skeleton& skeleton, const Matrix4x4& matWorld) {
+	int i = 0;//一から順番に
+	for (Joint& joint : skeleton.joints) {
+		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+		debugSphere[i]->SetColor(Vector4(1, 1, 0, 1));//わかりやすい色
+		if (joint.parent) {
+			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
+			debugSphere[i]->Update(joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix * matWorld);
+		}
+		else {
+			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
+			debugSphere[i]->Update(joint.localMatrix * matWorld);
+		}
+		i++;
+	}
+}
+
 void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skeleton) {
 	for (size_t jointIndex = 0; jointIndex < skeleton.joints.size(); ++jointIndex) {
 		assert(jointIndex < skinCluster.inverseBindPoseMatrices.size());
@@ -240,40 +273,41 @@ void Object3d::SetWireframe() {
 
 void Object3d::ChangeAnimation(const std::string& filePath) {
 	
+	//モデルが同じならすぐにリターン
 	if (model == ModelManager::GetInstance()->FindModel(filePath)) {
 		return;
 	}
+	
+	//変更前のアニメーションデータ
+	preAnimation = animation;
 
-	//変わる前のアニメーションデータ
-	animationNext = animation;
-
-	//変更するアニメーションデータ
+	//変更先のアニメーションデータ
 	model = ModelManager::GetInstance()->FindModel(filePath);
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
 	skeleton = model->GetSkeleton();
 	skinCluster = model->GetSkinCluster();
-	
+
 	//animationTimeを1.0f/60.0fに
 	//Sleapなどで0より小さい値を出さないようにする
 	//はじめは少しカクつくが、アニメーション補間が終えた後がスムーズ
 	changeTime += 1.0f / 60.0f;
 	animationTime = changeTime;
 
-	Interpolation(skeleton, animation, animationNext,changeTime);
+	Interpolation(skeleton, animation, preAnimation,changeTime);
 	SkeletonUpdate(skeleton);
 	SkinClusterUpdate(skinCluster, skeleton);
 	
 	//アニメーション補間中に変更があった時
 	if (isChange) {
-		changeTime = 0.9f - animationTime;
+		changeTime = 0.9f - changeTime;
 	}
-
+	
 	isChange = true;
 
 	//Sleapなどで1より大きい値を出さないようにする
-	if (animationNext.duration > 1.0f) {
-		animationNext.duration = 0.9f;
+	if (preAnimation.duration > 1.0f) {
+		preAnimation.duration = 0.9f;
 	}
 
 }

@@ -12,6 +12,7 @@ TestClass::TestClass(){}
 
 TestClass::~TestClass() {
 	delete object_;
+	delete object2_;
 	delete camera;
 
 }
@@ -31,18 +32,25 @@ void TestClass::Init() {
 	DebugWireframes::GetInstance()->SetDefaultCamera(camera);
 
 	worldTransform_.Initialize();
+	worldTransform2_.Initialize();
 
 	object_ = new Object3d();
 	object_->Initialize();
 	object_->SetModelFile("stop.gltf");
 
+	object2_ = new Object3d();
+	object2_->Initialize();
+	object2_->SetModelFile("simpleSkin.gltf");
+
 	worldTransform_.translation_.y = 0.0f;
-	//worldTransform_.rotation_.x = -1.277f;
+
+	worldTransform2_.translation_.x = 3.0f;
+	worldTransform2_.rotation_.y = -2.5f;
 
 	input = Input::GetInstance();
 
 	//worldTransformを親クラスに
-	//camera->SetParent(&worldTransform_);
+	camera->SetParent(&worldTransform_);
 }
 
 void TestClass::Update() {
@@ -64,8 +72,8 @@ void TestClass::Update() {
 			x = 0.0f;
 		if (fabs(z) < deadZone)
 			z = 0.0f;
-		worldTransform_.translation_.x += x / 10;
-		worldTransform_.translation_.z += z / 10;
+		worldTransform_.translation_.x += x / 20;
+		worldTransform_.translation_.z += z / 20;
 
 		//動いている
 		if (worldTransform_.translation_.x != preX ||
@@ -81,48 +89,14 @@ void TestClass::Update() {
 
 	}
 
-	//まだ
-	// GamePad右スティックによるカメラ回転処理
-	//float xCamera = 0.0f, zCamera = 0.0f;
-	//if (input->GetJoyStickState(0, state)) {
-
-	//	// 右スティックの入力
-	//	xCamera = static_cast<float>(state.Gamepad.sThumbRX) / 32768.0f; // -1.0f～1.0f
-	//	zCamera = static_cast<float>(state.Gamepad.sThumbRY) / 32768.0f; // -1.0f～1.0f
-
-	//	// デッドゾーン処理
-	//	if (abs(xCamera) < deadZone) {
-	//		xCamera = 0.0f;
-	//		if (fabs(zCamera) < deadZone)
-	//		zCamera = 0.0f;
-	//	}
-
-	//	// カメラ向き
-	//	// Y軸
-	//	cameraYaw += xCamera * 2.5f;
-	//	// X軸（上下反転）
-	//	cameraPitch -= zCamera * 2.5f;  // += から -= に変更して反転
-	//}
 
 	if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) && !(preState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && !isJump) {
 		isJump = true;
-		velocity.y += 0.5f;
+		velocity.y += 0.05f;
 	}
-	
-	//if (input->PushKey(DIK_K) && !isJump) {
-	//	isJump = true;
-	//	velocity.y += 0.5f;
-	//}
-
-	//if (input->PushKey(DIK_A)) {
-	//	isWalk = true;
-	//}
-	//else {
-	//	isWalk = false;
-	//}
 
 	if (isJump) {
-		float grabity = -0.02f;
+		float grabity = -0.001f;
 		velocity.y += grabity;
 	}
 	worldTransform_.translation_.y += velocity.y;
@@ -134,7 +108,7 @@ void TestClass::Update() {
 	}
 
 
-	if (input->PushKey(DIK_K)) {
+	if (isJump) {
 		mosion = jump;
 	}
 	else if(isWalk){
@@ -186,11 +160,26 @@ void TestClass::Update() {
 
 	ImGui::End();
 
+	ImGui::Begin("TestModel2");
+
+	ImGui::InputFloat3("VertexModel2", &worldTransform2_.translation_.x);
+	ImGui::SliderFloat3("SliderVertexModel2", &worldTransform2_.translation_.x, -5.0f, 5.0f);
+
+	ImGui::InputFloat3("RotateModel2", &worldTransform2_.rotation_.x);
+	ImGui::SliderFloat3("SliderRotateModel2", &worldTransform2_.rotation_.x, -10.0f, 10.0f);
+
+	ImGui::InputFloat3("ScaleModel2", &worldTransform2_.scale_.x);
+	ImGui::SliderFloat3("SliderScaleModel2", &worldTransform2_.scale_.x, 0.5f, 5.0f);
+
+	ImGui::End();
+
 	ImGui::Begin("camera");
 
 	//カメラ
-	ImGui::SliderFloat3("cameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
+	ImGui::InputFloat3("cameraTranslate", &cameraTranslate.x);
+	ImGui::SliderFloat3("ScameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
 
+	ImGui::InputFloat3("cameraRotate", &cameraRotate.x);
 	ImGui::SliderFloat("cameraRotateX", &cameraRotate.x, -10.0f, 10.0f);
 	ImGui::SliderFloat("cameraRotateY", &cameraRotate.y, -10.0f, 10.0f);
 	ImGui::SliderFloat("cameraRotateZ", &cameraRotate.z, -10.0f, 10.0f);
@@ -203,13 +192,16 @@ void TestClass::Update() {
 	object_->LightSwitch(onLight);
 
 	worldTransform_.UpdateMatrix();
+	object_->Update(worldTransform_);
+
+	worldTransform2_.UpdateMatrix();
+	object2_->Update(worldTransform2_);
 
 	camera->Update();
-
-	object_->Update(worldTransform_);
 }
 
 
 void TestClass::Draw() {
 	object_->Draw();
+	object2_->Draw();
 }
