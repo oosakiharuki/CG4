@@ -53,7 +53,8 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 
 	textureData.metadata = metadata;
 	textureData.resource = dxCommon_->CreateTextureResource(textureData.metadata);
-	dxCommon_->UploadTextureData(textureData.resource, mipImages);
+	Microsoft::WRL::ComPtr<ID3D12Resource> val = dxCommon_->UploadTextureData(textureData.resource, mipImages);
+	intermediateResources.push_back(val);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format;
@@ -65,7 +66,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	textureData.srvHandleCPU = srvManager->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = srvManager->GetGPUDescriptorHandle(textureData.srvIndex);
 
-	
+
 	//SRVの生成
 	dxCommon_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
 

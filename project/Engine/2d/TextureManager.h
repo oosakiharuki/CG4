@@ -44,4 +44,6 @@ private:
 
 	DirectXCommon* dxCommon_ = nullptr;
 	SrvManager* srvManager = nullptr;
+
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> intermediateResources;
 };
