@@ -2,6 +2,7 @@
 
 void GameScene::Initialize() {
 
+
 	//ModelManager::GetInstance()->LoadModel("plane.gltf");
 	//ModelManager::GetInstance()->LoadModel("plane.obj");
 	//ModelManager::GetInstance()->LoadModel("grass01");
@@ -36,6 +37,11 @@ void GameScene::Initialize() {
 	particle = new Particle();
 	particle->Initialize(ParticleCommon::GetInstance(),"plane");
 
+	//TextureManager::GetInstance()->LoadTexture("resource/rostock_laage_airport_4k.dds");
+	skyBox = new BoxModel();
+	skyBox->Initialize("resource/rostock_laage_airport_4k.dds");
+
+	worldTransform.Initialize();
 }
 
 void GameScene::Update() {
@@ -56,7 +62,7 @@ void GameScene::Update() {
 
 	particle->Update();
 
-
+	skyBox->Update(worldTransform.matWorld_);
 
 #ifdef  USE_IMGUI
 
@@ -83,6 +89,9 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
+	Cubemap::GetInstance()->Command();
+	skyBox->Draw();
+
 	//スプライト描画処理(背景用)
 	SpriteCommon::GetInstance()->Command();
 
@@ -105,4 +114,5 @@ void GameScene::Draw() {
 void GameScene::Finalize() {	
 	delete testClass;
 	delete particle;
+	delete skyBox;
 }

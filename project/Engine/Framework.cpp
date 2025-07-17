@@ -44,6 +44,9 @@ void Framework::Initialize() {
 
 	debugWireframes =  DebugWireframes::GetInstance();
 	debugWireframes->Initialize(dxCommon);
+
+	cubemap = Cubemap::GetInstance();
+	cubemap->Initialize(dxCommon);
 }
 
 void Framework::Update() {
@@ -83,6 +86,7 @@ void Framework::Finalize() {
 	
 	particleCommon->Finalize();
 	debugWireframes->Finalize();
+	cubemap->Finalize();
 }
 
 

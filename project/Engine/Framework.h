@@ -15,6 +15,7 @@
 #include "D3DResorceLeakChecker.h"
 
 #include"DebugWireframes.h"
+#include "Cubemap.h"
 
 class Framework{
 public:
@@ -38,6 +39,7 @@ private:
 	ModelCommon* modelCommon = nullptr;
 	ParticleCommon* particleCommon = nullptr;
 	DebugWireframes* debugWireframes = nullptr;
+	Cubemap* cubemap = nullptr;
 
 	bool isRequst = false;
 };

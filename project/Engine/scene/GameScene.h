@@ -9,6 +9,7 @@
 #include "IScene.h"
 
 #include "TestClass.h"
+#include "BoxModel.h"
 
 class GameScene : public IScene {
 public:
@@ -52,4 +53,7 @@ private:
 	TestClass* testClass = nullptr;
 
 	Particle* particle = nullptr;
+
+	BoxModel* skyBox = nullptr;
+	WorldTransform worldTransform;
 };
