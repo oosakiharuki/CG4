@@ -463,7 +463,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXCommon::CreateTextureResource(cons
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = UINT(metadata.width);//幅
 	resourceDesc.Height = UINT(metadata.height);//高さ
-	resourceDesc.MipLevels = UINT16(metadata.miscFlags);//数
+	resourceDesc.MipLevels = UINT16(metadata.mipLevels);//mipmapの数
 	resourceDesc.DepthOrArraySize = UINT(metadata.arraySize);//奥行き　Textureの配置数
 	resourceDesc.Format = metadata.format;//format
 	resourceDesc.SampleDesc.Count = 1;//サンプリングカウント(1固定)

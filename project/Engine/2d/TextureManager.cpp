@@ -40,6 +40,7 @@ void TextureManager::LoadTexture(const std::string& filePath) {
 	std::wstring filePathW = ConvertString(filePath);
 	HRESULT hr;
 	if (filePathW.ends_with(L".dds")) {
+		//sRGB搭載のためFLAGは立てない
 		hr = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
 	}
 	else {
