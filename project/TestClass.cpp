@@ -179,7 +179,7 @@ void TestClass::Update() {
 
 	//カメラ
 	ImGui::InputFloat3("cameraTranslate", &cameraTranslate.x);
-	ImGui::SliderFloat3("ScameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
+	ImGui::SliderFloat3("ScameraTranslate", &cameraTranslate.x, -300.0f, 300.0f);
 
 	ImGui::InputFloat3("cameraRotate", &cameraRotate.x);
 	ImGui::SliderFloat("cameraRotateX", &cameraRotate.x, -10.0f, 10.0f);

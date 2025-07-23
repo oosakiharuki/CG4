@@ -46,8 +46,8 @@ void Cubemap::RootSignature() {
 
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;//Object3d.VS.hlsl の b0
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);//Object3d.VS.hlsl の b0
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
 
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
@@ -111,7 +111,8 @@ void Cubemap::GraphicsPipeline() {
 	//RasterizerState
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;//表裏表示
+	//あってるかわからん
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_NONE;//表裏表示
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//shaderのコンパイラ

@@ -1,4 +1,5 @@
 #include "GameScene.h"
+using namespace MyMath;
 
 void GameScene::Initialize() {
 
@@ -61,8 +62,8 @@ void GameScene::Update() {
 	testClass->Update();
 
 	particle->Update();
-
-	skyBox->Update(worldTransform.matWorld_);
+	
+	skyBox->Update(worldTransform.matWorld_ * MakeScaleMatrix({ 1000,1000,1000 }));//大きくするため
 
 #ifdef  USE_IMGUI
 
