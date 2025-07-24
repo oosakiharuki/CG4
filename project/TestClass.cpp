@@ -38,11 +38,13 @@ void TestClass::Init() {
 
 	object_ = new Object3d();
 	object_->Initialize();
-	object_->SetModelFile("stop.gltf");
+	object_->SetModelFile("sneakWalk.gltf");
+	object_->SetEnvironment("resource/rostock_laage_airport_4k.dds");
 
 	object2_ = new Object3d();
 	object2_->Initialize();
-	object2_->SetModelFile("simpleSkin.gltf");
+	object2_->SetModelFile("walk.gltf");
+	object2_->SetEnvironment("resource/rostock_laage_airport_4k.dds");
 
 	worldTransform_.translation_.y = 0.0f;
 
@@ -60,7 +62,7 @@ void TestClass::Update() {
 	input->GetJoyStickState(0, state);
 	input->GetJoystickStatePrevious(0, preState);
 
-	onLight = true;
+	//onLight = true;
 
 	float x;
 	float z;
@@ -149,7 +151,10 @@ void TestClass::Update() {
 
 #ifdef _DEBUG
 
-	ImGui::Begin("TestModel");
+	ImGui::Begin("Test");
+	
+	///オブジェクト01
+	ImGui::Text("TestModel");
 
 	ImGui::InputFloat3("VertexModel", &worldTransform_.translation_.x);
 	ImGui::SliderFloat3("SliderVertexModel", &worldTransform_.translation_.x, -5.0f, 5.0f);
@@ -160,9 +165,15 @@ void TestClass::Update() {
 	ImGui::InputFloat3("ScaleModel", &worldTransform_.scale_.x);
 	ImGui::SliderFloat3("SliderScaleModel", &worldTransform_.scale_.x, 0.5f, 5.0f);
 
-	ImGui::End();
+	ImGui::InputFloat3("Color", &object_->GetMaterial()->color.x);
+	ImGui::SliderFloat3("SliderColor", &object_->GetMaterial()->color.x, 0.0f, 1.0f);
 
-	ImGui::Begin("TestModel2");
+	ImGui::Checkbox("light", &object_->GetMaterial()->enableLighting);
+
+	ImGui::SliderFloat("Environment", &object_->GetMaterial()->environmentCoefficient, 0.0f, 1.0f);
+	
+	///オブジェクト02
+	ImGui::Text("TestModel2");
 
 	ImGui::InputFloat3("VertexModel2", &worldTransform2_.translation_.x);
 	ImGui::SliderFloat3("SliderVertexModel2", &worldTransform2_.translation_.x, -5.0f, 5.0f);
@@ -173,13 +184,15 @@ void TestClass::Update() {
 	ImGui::InputFloat3("ScaleModel2", &worldTransform2_.scale_.x);
 	ImGui::SliderFloat3("SliderScaleModel2", &worldTransform2_.scale_.x, 0.5f, 5.0f);
 
-	ImGui::End();
+	ImGui::Checkbox("light2", &object2_->GetMaterial()->enableLighting);
 
-	ImGui::Begin("camera");
+	ImGui::SliderFloat("Environment2", &object2_->GetMaterial()->environmentCoefficient, 0.0f, 1.0f);
+
+	ImGui::Text("camera");
 
 	//カメラ
 	ImGui::InputFloat3("cameraTranslate", &cameraTranslate.x);
-	ImGui::SliderFloat3("ScameraTranslate", &cameraTranslate.x, -300.0f, 300.0f);
+	ImGui::SliderFloat3("ScameraTranslate", &cameraTranslate.x, -30.0f, 30.0f);
 
 	ImGui::InputFloat3("cameraRotate", &cameraRotate.x);
 	ImGui::SliderFloat("cameraRotateX", &cameraRotate.x, -10.0f, 10.0f);
@@ -191,7 +204,8 @@ void TestClass::Update() {
 	ImGui::End();
 #endif // _DEBUG
 
-	object_->LightSwitch(onLight);
+	//object_->LightSwitch(onLight);
+	//object2_->LightSwitch(onLight);
 
 	worldTransform_.UpdateMatrix();
 	object_->Update(worldTransform_);

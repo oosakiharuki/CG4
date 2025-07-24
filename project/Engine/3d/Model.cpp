@@ -58,6 +58,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 	materialData->enableLighting = true;
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->shininess = 70;
+	materialData->environmentCoefficient = 0.3f;
 
 	//テクスチャ読み込み
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
@@ -81,6 +82,8 @@ void Model::Draw() {
 	modelCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress()); //rootParameterの配列の0番目 [0]
 	modelCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(modelData.material.textureFilePath));
 	modelCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(7, skinCluster.paletteSrvHandle.second);//Skinning.VS t0
+	
+	modelCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootDescriptorTable(8, TextureManager::GetInstance()->GetSrvHandleGPU(EnvironmentFile));
 	//modelCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
 	modelCommon->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
 
@@ -430,4 +433,9 @@ SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton,const ModelData& m
 
 
 	return skinCluster;
+}
+
+//環境マップのテクスチャをもらう
+void Model::SetEnvironment(const std::string mapFile) {
+	EnvironmentFile = mapFile;
 }

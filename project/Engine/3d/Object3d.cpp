@@ -37,7 +37,7 @@ void Object3d::Initialize() {
 	//色の設定
 	directionalLightSphereData->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightSphereData->direction = { 0.0f,-1.0f,0.0f };
-	directionalLightSphereData->intensity = 1.0f;
+	directionalLightSphereData->intensity = 0.5f;//明るすぎたため
 
 
 	//Phong Reflection Model
@@ -176,6 +176,7 @@ void Object3d::Draw(const std::string& textureData) {
 void Object3d::SetModelFile(const std::string& filePath) {
 
 	model = ModelManager::GetInstance()->FindModel(filePath);
+	material = model->GetMaterial();
 	modelData = model->GetModelData();
 	animation = model->GetAnimationData();
 	skeleton = model->GetSkeleton();
@@ -204,6 +205,12 @@ void Object3d::SetObjFile(const std::string& filePath) {
 void Object3d::LightSwitch(bool isLight) {
 	if (model) {
 		model->LightOn(isLight);
+	}
+}
+
+void Object3d::SetEnvironment(const std::string& filePath) {
+	if (model) {
+		model->SetEnvironment(filePath);
 	}
 }
 

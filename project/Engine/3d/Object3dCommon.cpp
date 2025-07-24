@@ -34,6 +34,10 @@ void Object3dCommon::RootSignature() {
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	descriptorRangeIBL[0].BaseShaderRegister = 1;
+	descriptorRangeIBL[0].NumDescriptors = 1;
+	descriptorRangeIBL[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeIBL[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//RootParameter作成__
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -75,6 +79,13 @@ void Object3dCommon::RootSignature() {
 	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+
+	//IBL t1
+	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[8].DescriptorTable.pDescriptorRanges = descriptorRangeIBL;
+	rootParameters[8].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeIBL);
+
 
 	//2でまとめる
 

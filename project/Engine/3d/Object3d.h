@@ -32,6 +32,8 @@ public:
 	void SetModelFile(const std::string& filePath);
 	void SetObjFile(const std::string& filePath);
 	void LightSwitch(bool isLight);
+	//環境マップ用
+	void SetEnvironment(const std::string& filePath);
 
 	void SetScale(const Vector3& scale) { transform.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
@@ -49,6 +51,7 @@ public:
 	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
 
 	void ChangeAnimation(const std::string& filePath);
+	Material* GetMaterial() { return material; };
 
 private:
 	Object3dCommon* object3dCommon = nullptr;
@@ -101,4 +104,6 @@ private:
 
 	//変更前のアニメーション
 	Animation preAnimation;
+
+	Material* material;
 };

@@ -23,6 +23,7 @@ public:
 	static Animation LoadAnimationFile(const std::string& directoryPath, const std::string& filename);
 
 	void LightOn(bool Light) { materialData->enableLighting = Light; }
+	void SetEnvironment(const std::string mapFile);
 
 	static Node ReadNode(aiNode* node);
 
@@ -36,6 +37,7 @@ public:
 
 	SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
 
+	Material* GetMaterial() { return materialData; }
 private:
 	ModelCommon* modelCommon = nullptr;
 
@@ -66,4 +68,6 @@ private:
 	SkinCluster skinCluster;
 
 	D3D12_VERTEX_BUFFER_VIEW vbvs[2];
+	
+	std::string EnvironmentFile;
 };
