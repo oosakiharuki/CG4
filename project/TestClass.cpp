@@ -43,7 +43,7 @@ void TestClass::Init() {
 
 	object2_ = new Object3d();
 	object2_->Initialize();
-	object2_->SetModelFile("walk.gltf");
+	object2_->SetModelFile("simpleSkin.gltf");
 	object2_->SetEnvironment("resource/rostock_laage_airport_4k.dds");
 
 	worldTransform_.translation_.y = 0.0f;
@@ -51,10 +51,15 @@ void TestClass::Init() {
 	worldTransform2_.translation_.x = 3.0f;
 	worldTransform2_.rotation_.y = -2.5f;
 
+	worldTransformCamera_.Initialize();
+
+
 	input = Input::GetInstance();
 
 	//worldTransformを親クラスに
-	camera->SetParent(&worldTransform_);
+	camera->SetParent(&worldTransformCamera_);
+
+	worldTransformCamera_.parent_ = &worldTransform_;
 }
 
 void TestClass::Update() {
@@ -66,6 +71,9 @@ void TestClass::Update() {
 
 	float x;
 	float z;
+
+	float cameraX;
+	float cameraY;
 
 	const float deadZone = 0.2f;
 	if (input->GetJoyStickState(0, state)) {
@@ -90,6 +98,17 @@ void TestClass::Update() {
 
 		preX = worldTransform_.translation_.x;
 		preZ = worldTransform_.translation_.z;
+
+
+		cameraX = static_cast<float>(state.Gamepad.sThumbRX) / 32768.0f;
+		cameraY = static_cast<float>(state.Gamepad.sThumbRY) / 32768.0f;
+
+		if (fabs(cameraX) < deadZone)
+			cameraX = 0.0f;
+		if (fabs(cameraY) < deadZone)
+			cameraY = 0.0f;
+		worldTransformCamera_.rotation_.x -= cameraY * -(float(M_PI) / 180.0f);
+		worldTransformCamera_.rotation_.y += cameraX * -(float(M_PI) / 180.0f);
 
 	}
 
@@ -127,23 +146,25 @@ void TestClass::Update() {
 		isChangeMosion = true;
 	}
 
-	if (isChangeMosion) {
-		switch (mosion)
-		{
-		case TestClass::stop:
-			object_->ChangeAnimation("stop.gltf");
-			isChangeMosion = false;
-			break;
-		case TestClass::walk:
-			object_->ChangeAnimation("walk.gltf");
-			isChangeMosion = false;
-			break;
-		case TestClass::jump:
-			object_->ChangeAnimation("sneakWalk.gltf");
-			isChangeMosion = false;
-			break;
-		}
-	}
+	//if (isChangeMosion) {
+	//	switch (mosion)
+	//	{
+	//	case TestClass::stop:
+	//		object_->ChangeAnimation("stop.gltf");
+	//		isChangeMosion = false;
+	//		break;
+	//	case TestClass::walk:
+	//		object_->ChangeAnimation("walk.gltf");
+	//		isChangeMosion = false;
+	//		break;
+	//	case TestClass::jump:
+	//		object_->ChangeAnimation("sneakWalk.gltf");
+	//		isChangeMosion = false;
+	//		break;
+	//	}
+	//	object_->SetEnvironment("resource/rostock_laage_airport_4k.dds");
+
+	//}
 
 	//前回のモーション
 	preMosion = mosion;
@@ -212,6 +233,9 @@ void TestClass::Update() {
 
 	worldTransform2_.UpdateMatrix();
 	object2_->Update(worldTransform2_);
+
+	worldTransformCamera_.UpdateMatrix();
+
 
 	camera->Update();
 }

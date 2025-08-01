@@ -23,6 +23,7 @@ public:
 
 private:
 	WorldTransform worldTransform_;
+	WorldTransform worldTransformCamera_;
 	Object3d* object_ = nullptr;
 
 	WorldTransform worldTransform2_;

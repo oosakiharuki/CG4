@@ -142,6 +142,7 @@ void Object3d::Draw() {
 		model->Draw();
 	}
 
+#ifdef _DEBUG
 	DebugWireframes::GetInstance()->Command();
 
 	for (auto it : debugSphere) {
@@ -149,6 +150,7 @@ void Object3d::Draw() {
 	}
 
 	Object3dCommon::GetInstance()->Command();
+#endif // _DEBUG
 
 }
 
@@ -163,6 +165,7 @@ void Object3d::Draw(const std::string& textureData) {
 		model->Draw(textureData);
 	}
 
+#ifdef _DEBUG
 	DebugWireframes::GetInstance()->Command();
 
 	for (auto it : debugSphere) {
@@ -170,6 +173,7 @@ void Object3d::Draw(const std::string& textureData) {
 	}
 
 	Object3dCommon::GetInstance()->Command();
+#endif // _DEBUG
 
 }
 
@@ -186,10 +190,12 @@ void Object3d::SetModelFile(const std::string& filePath) {
 	//親ノード
 	//SetWireframe();
 	//子ノード
+#ifdef _DEBUG
 	for (uint32_t childIndex = 0; childIndex < skeleton.joints.size(); ++childIndex) {
 		SetWireframe();
 	}
 
+#endif // _DEBUG
 	SkeletonUpdate(skeleton);
 	SkinClusterUpdate(skinCluster,skeleton);
 
@@ -208,6 +214,7 @@ void Object3d::LightSwitch(bool isLight) {
 	}
 }
 
+//環境マップのファイルパス
 void Object3d::SetEnvironment(const std::string& filePath) {
 	if (model) {
 		model->SetEnvironment(filePath);
@@ -229,18 +236,14 @@ void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, fl
 
 
 void Object3d::SkeletonUpdate(Skeleton& skeleton) {
-	int i = 0;//一から順番に
 	for (Joint& joint : skeleton.joints) {
 		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
 		if (joint.parent) {
 			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
-			debugSphere[i]->Update(joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix);
 		}
 		else {
 			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
-			debugSphere[i]->Update(joint.localMatrix);
 		}
-		i++;
 	}
 }
 
@@ -248,14 +251,20 @@ void Object3d::SkeletonUpdate(Skeleton& skeleton, const Matrix4x4& matWorld) {
 	int i = 0;//一から順番に
 	for (Joint& joint : skeleton.joints) {
 		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+#ifdef _DEBUG
 		debugSphere[i]->SetColor(Vector4(1, 1, 0, 1));//わかりやすい色
+#endif // _DEBUG
 		if (joint.parent) {
 			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
+#ifdef _DEBUG
 			debugSphere[i]->Update(joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix * matWorld);
+#endif // _DEBUG
 		}
 		else {
 			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
+ #ifdef _DEBUG	
 			debugSphere[i]->Update(joint.localMatrix * matWorld);
+#endif // _DEBUG
 		}
 		i++;
 	}
@@ -272,10 +281,12 @@ void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skele
 }
 
 void Object3d::SetWireframe() {
+#ifdef _DEBUG
 	SphereModel* sphere = new SphereModel();
 	sphere->Initialize();
 
 	debugSphere.push_back(sphere);
+#endif // _DEBUG
 }
 
 void Object3d::ChangeAnimation(const std::string& filePath) {
