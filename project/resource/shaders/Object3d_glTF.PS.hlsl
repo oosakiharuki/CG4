@@ -12,6 +12,7 @@ struct Material
     int32_t enableLighting;
     float32_t4x4 uvTransform;
     float32_t shininess;
+    float32_t environmentCoefficient;
 };
 
 struct DirectionalLight
@@ -55,6 +56,7 @@ ConstantBuffer<PointLight> gPointLight : register(b3);
 ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
 Texture2D<float32_t4> gTexture : register(t0);
+TextureCube<float32_t4> gEnvironmentTexture : register(t1);
 
 SamplerState gSampler : register(s0);
 
@@ -145,7 +147,14 @@ PixelShaderOutput main(VertexShaderOutput input)
         output.color.rgb =
         diffuseDirectionalLight + specularDirectionalLight +
         diffusePointLight + specularPointLight +
-        diffuseSpotLight + specularSpotLight;
+        diffuseSpotLight + specularSpotLight;  
+        
+        float32_t3 cameraToPosition = normalize(input.worldPostion - gCamera.worldPosition);//向き
+        float32_t3 reflectedVector = reflect(cameraToPosition, normalize(input.normal));//反射ベクトル
+        float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);//Cubemapのテクスチャ
+        
+        output.color.rgb += environmentColor.rgb * gMaterial.environmentCoefficient;//映り込み度
+        
         output.color.a = gMaterial.color.a * textureColor.a;
         
     }

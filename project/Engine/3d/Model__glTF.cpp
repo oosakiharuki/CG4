@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "Model_glTF.h"
 #include "TextureManager.h"
 #include <fstream>
 #include <sstream>
@@ -9,20 +9,12 @@
 
 using namespace MyMath;
 
-void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& fileName) {
+void Model_glTF::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& fileName) {
 	this->modelCommon = modelCommon;
 
-	switch (objectType)
-	{
-	case ObjectType::obj:	//.obj
-		modelData = LoadObjFile(directorypath, fileName);
-		break;
-	case ObjectType::gltf:
-		//.gltf
-		modelData = LoadModelFile(directorypath, fileName);
-		animation = LoadAnimationFile(directorypath, fileName);
-		break;
-	}
+	//.gltf
+	modelData = LoadModelFile(directorypath, fileName);
+	animation = LoadAnimationFile(directorypath, fileName);
 
 	InitialData = modelData;
 
@@ -72,7 +64,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 }
 
-void Model::Draw() {
+void Model_glTF::Draw() {
 	//objファイルに元々あったテクスチャ
 	modelData = InitialData;
 	
@@ -89,7 +81,7 @@ void Model::Draw() {
 
 }
 
-void Model::Draw(const std::string& textureFilePath) {
+void Model_glTF::Draw(const std::string& textureFilePath) {
 
 	TextureManager::GetInstance()->LoadTexture(textureFilePath);
 	modelData.material.textureFilePath = textureFilePath;
@@ -107,7 +99,7 @@ void Model::Draw(const std::string& textureFilePath) {
 }
 
 
-MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+MaterialData Model_glTF::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	MaterialData materialData;
 	std::string line;
 	std::ifstream file(directoryPath + "/" + filename);
@@ -130,76 +122,76 @@ MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, c
 };
 
 
-ModelData Model::LoadObjFile(const std::string& directoryPath, const std::string& filename) {
-	ModelData modelData;
+//ModelData Model_glTF::LoadObjFile(const std::string& directoryPath, const std::string& filename) {
+//	ModelData modelData;
+//
+//	Assimp::Importer importer;
+//	std::string filePath = directoryPath + "/" + filename;
+//
+//	const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+//	assert(scene->HasMeshes()); //メッシュがないのは対応なし
+//
+//	//VertexDataを読み取る
+//	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+//		aiMesh* mesh = scene->mMeshes[meshIndex];
+//		assert(mesh->HasNormals());//法線があるか
+//		assert(mesh->HasTextureCoords(0));//Texcordがあるか
+//
+//		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+//			aiFace& face = mesh->mFaces[faceIndex];
+//			assert(face.mNumIndices == 3);//三角形のみ
+//			
+//			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+//				uint32_t vertexIndex = face.mIndices[element];
+//				aiVector3D& position = mesh->mVertices[vertexIndex];
+//				aiVector3D& normal = mesh->mNormals[vertexIndex];
+//				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+//
+//				VertexData vertex;
+//				vertex.position = { position.x,position.y,position.z,1.0f };
+//				vertex.normal = { normal.x,normal.y, normal.z, };
+//				vertex.texcoord = { texcoord.x,texcoord.y };
+//
+//				//aiProcess_MakeleftHandleなので z *= -1,右手→左手(x *= -1)に変換する
+//				vertex.position.x *= -1.0f;
+//				vertex.normal.x *= -1.0f;
+//
+//				modelData.vertices.push_back(vertex);
+//			}
+//		}
+//
+//		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+//			aiFace& face = mesh->mFaces[faceIndex];
+//			assert(face.mNumIndices == 3);//三角形のみ
+//
+//			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+//				uint32_t vertexIndex = face.mIndices[element];
+//				modelData.indices.push_back(vertexIndex);
+//			}
+//		}
+//
+//
+//	}	
+//	//MaterialData
+//	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+//		aiMaterial* material = scene->mMaterials[materialIndex];
+//		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+//			aiString textureFilePath;
+//			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+//			modelData.material.textureFilePath = directoryPath + "/Sprite/" + textureFilePath.C_Str();		
+//		}
+//
+//	}	
+//	//オブジェクトには親子ノードがないので単品
+//	Node result;
+//	result.localMatrix = MakeIdentity4x4();
+//	modelData.rootNode = result;
+//
+//	return modelData;
+//}
 
-	Assimp::Importer importer;
-	std::string filePath = directoryPath + "/" + filename;
-
-	const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
-	assert(scene->HasMeshes()); //メッシュがないのは対応なし
-
-	//VertexDataを読み取る
-	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
-		aiMesh* mesh = scene->mMeshes[meshIndex];
-		assert(mesh->HasNormals());//法線があるか
-		assert(mesh->HasTextureCoords(0));//Texcordがあるか
-
-		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
-			aiFace& face = mesh->mFaces[faceIndex];
-			assert(face.mNumIndices == 3);//三角形のみ
-			
-			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
-				uint32_t vertexIndex = face.mIndices[element];
-				aiVector3D& position = mesh->mVertices[vertexIndex];
-				aiVector3D& normal = mesh->mNormals[vertexIndex];
-				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
-
-				VertexData vertex;
-				vertex.position = { position.x,position.y,position.z,1.0f };
-				vertex.normal = { normal.x,normal.y, normal.z, };
-				vertex.texcoord = { texcoord.x,texcoord.y };
-
-				//aiProcess_MakeleftHandleなので z *= -1,右手→左手(x *= -1)に変換する
-				vertex.position.x *= -1.0f;
-				vertex.normal.x *= -1.0f;
-
-				modelData.vertices.push_back(vertex);
-			}
-		}
-
-		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
-			aiFace& face = mesh->mFaces[faceIndex];
-			assert(face.mNumIndices == 3);//三角形のみ
-
-			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
-				uint32_t vertexIndex = face.mIndices[element];
-				modelData.indices.push_back(vertexIndex);
-			}
-		}
-
-
-	}	
-	//MaterialData
-	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
-		aiMaterial* material = scene->mMaterials[materialIndex];
-		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
-			aiString textureFilePath;
-			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			modelData.material.textureFilePath = directoryPath + "/Sprite/" + textureFilePath.C_Str();		
-		}
-
-	}	
-	//オブジェクトには親子ノードがないので単品
-	Node result;
-	result.localMatrix = MakeIdentity4x4();
-	modelData.rootNode = result;
-
-	return modelData;
-}
-
-ModelData Model::LoadModelFile(const std::string& directoryPath, const std::string& filename) {
-	ModelData modelData;
+ModelData_glTF Model_glTF::LoadModelFile(const std::string& directoryPath, const std::string& filename) {
+	ModelData_glTF modelData;
 
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -275,7 +267,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 	return modelData;
 }
 
-Node Model::ReadNode(aiNode* node) {
+Node Model_glTF::ReadNode(aiNode* node) {
 	Node result;
 
 	aiVector3D scale, translate;
@@ -285,29 +277,6 @@ Node Model::ReadNode(aiNode* node) {
 	result.transform.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w };
 	result.transform.translate = { -translate.x,translate.y ,translate.z };
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
-
-	//aiMatrix4x4 ailocalMatrix = node->mTransformation;//node localMatrixを取得
-	//ailocalMatrix.Transpose();//列ベクトル→行ベクトル
-	//result.localMatrix.m[0][0] = ailocalMatrix[0][0];
-	//result.localMatrix.m[0][1] = ailocalMatrix[0][1];
-	//result.localMatrix.m[0][2] = ailocalMatrix[0][2];
-	//result.localMatrix.m[0][3] = ailocalMatrix[0][3];
-
-	//result.localMatrix.m[1][0] = ailocalMatrix[1][0];
-	//result.localMatrix.m[1][1] = ailocalMatrix[1][1];
-	//result.localMatrix.m[1][2] = ailocalMatrix[1][2];
-	//result.localMatrix.m[1][3] = ailocalMatrix[1][3];
-
-	//result.localMatrix.m[2][0] = ailocalMatrix[2][0];
-	//result.localMatrix.m[2][1] = ailocalMatrix[2][1];
-	//result.localMatrix.m[2][2] = ailocalMatrix[2][2];
-	//result.localMatrix.m[2][3] = ailocalMatrix[2][3];
-
-	//result.localMatrix.m[3][0] = ailocalMatrix[3][0];
-	//result.localMatrix.m[3][1] = ailocalMatrix[3][1];
-	//result.localMatrix.m[3][2] = ailocalMatrix[3][2];
-	//result.localMatrix.m[3][3] = ailocalMatrix[3][3];
-
 
 
 	result.name = node->mName.C_Str();//nodeの名前
@@ -321,7 +290,7 @@ Node Model::ReadNode(aiNode* node) {
 }
 
 
-Animation  Model::LoadAnimationFile(const std::string& directoryPath, const std::string& filename) {
+Animation  Model_glTF::LoadAnimationFile(const std::string& directoryPath, const std::string& filename) {
 	Animation animation;
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -363,7 +332,7 @@ Animation  Model::LoadAnimationFile(const std::string& directoryPath, const std:
 	return animation;
 }
 
-SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton,const ModelData& modelData) {
+SkinCluster Model_glTF::CreateSkinCluster(const Skeleton& skeleton,const ModelData_glTF& modelData) {
 
 
 	SkinCluster skinCluster;
@@ -436,6 +405,6 @@ SkinCluster Model::CreateSkinCluster(const Skeleton& skeleton,const ModelData& m
 }
 
 //環境マップのテクスチャをもらう
-void Model::SetEnvironment(const std::string mapFile) {
+void Model_glTF::SetEnvironment(const std::string mapFile) {
 	EnvironmentFile = mapFile;
 }

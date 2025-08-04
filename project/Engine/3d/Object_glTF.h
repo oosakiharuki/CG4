@@ -1,6 +1,6 @@
 #pragma once
 #include "MyMath.h"
-#include "Model_obj.h"
+#include "Model_glTF.h"
 
 //ComPtr
 #include <wrl.h>
@@ -9,23 +9,30 @@
 #include "Camera.h"
 #include "WorldTransform.h"
 
-class Object3dCommon;
+#include "SphereModel.h"
 
-class Object3d
+class GLTFCommon;
+
+class Object_glTF
 {
 public:
+	Object_glTF();
+	~Object_glTF();
+
 	void Initialize();
-	void Update();
-	void Draw(const WorldTransform& worldTransform);
-	void Draw(const WorldTransform& worldTransform, const std::string& textureData);
+	void Update(const WorldTransform& worldTransform);
+	void Draw();
+	void Draw(const std::string& textureData);
 
 
 	//static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 	//static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
 
-	void SetModel(Model_obj* model) { this->model = model; }
+	void SetModel(Model_glTF* model) { this->model = model; }
 	void SetModelFile(const std::string& filePath);
 	void LightSwitch(bool isLight);
+	//環境マップ用
+	void SetEnvironment(const std::string& filePath);
 
 	void SetScale(const Vector3& scale) { transform.scale = scale; }
 	void SetRotate(const Vector3& rotate) { transform.rotate = rotate; }
@@ -36,8 +43,17 @@ public:
 	const Vector3& GetRotate() const { return transform.rotate; }
 	const Vector3& GetTranslate()const { return transform.translate; }
 
+	void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
+	void Interpolation(Skeleton& skeleton, const Animation& animation, const Animation& nextAnimation, float animationTime);
+	void SkeletonUpdate(Skeleton& skeleton);
+	void SkeletonUpdate(Skeleton& skeleton,const Matrix4x4& matWorld);
+	void SkinClusterUpdate(SkinCluster& skinCluster ,const Skeleton& skeleton);
+
+	void ChangeAnimation(const std::string& filePath);
+	Material* GetMaterial() { return material; };
+
 private:
-	Object3dCommon* object3dCommon = nullptr;
+	GLTFCommon* object3dCommon = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> wvpResource;
 	TransformationMatrix* wvpData = nullptr;
@@ -46,7 +62,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> directionalLightSphereResource;
 	//マテリアルにデータを書き込む
 	DirectionalLight* directionalLightSphereData = nullptr;
-	
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource;
 	CameraForGPU* cameraData = nullptr;
 
@@ -65,6 +81,28 @@ private:
 
 	Transform transformL;
 
-	Model_obj* model = nullptr;
+	Model_glTF* model = nullptr;
 	Camera* camera = nullptr;
+
+	ModelData_glTF modelData;
+
+
+	Animation animation;
+	///アニメーションタイマー
+	float animationTime = 0.0f;
+	/// 補間タイマー
+	float changeTime = 0.0f;
+	
+	Skeleton skeleton;
+	SkinCluster skinCluster;
+
+	std::vector<SphereModel*> debugSphere;
+	void SetWireframe();
+
+	bool isChange = false;
+
+	//変更前のアニメーション
+	Animation preAnimation;
+
+	Material* material;
 };

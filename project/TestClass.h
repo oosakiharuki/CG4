@@ -1,6 +1,6 @@
 #pragma once
 #include "WorldTransform.h"
-#include "Object3d.h"
+#include "Object_glTF.h"
 #include "MyMath.h"
 
 #include "Input.h"
@@ -24,10 +24,10 @@ public:
 private:
 	WorldTransform worldTransform_;
 	WorldTransform worldTransformCamera_;
-	Object3d* object_ = nullptr;
+	Object_glTF* object_ = nullptr;
 
 	WorldTransform worldTransform2_;
-	Object3d* object2_ = nullptr;
+	Object_glTF* object2_ = nullptr;
 
 	Camera* camera = nullptr;
 	Vector3 cameraRotate = { 0.0f,0.0f,0.0f };

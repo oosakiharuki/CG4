@@ -1,6 +1,5 @@
 #include "WorldTransform.h"
 #include "MyMath.h"
-#include "Object3dCommon.h"
 
 using namespace MyMath;
 

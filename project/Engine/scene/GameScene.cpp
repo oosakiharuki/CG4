@@ -10,10 +10,11 @@ void GameScene::Initialize() {
 	//ModelManager::GetInstance()->LoadModel("TwoSidedPlane.gltf");
 	//ModelManager::GetInstance()->LoadModel("AnimatedCube.gltf");
 	//ModelManager::GetInstance()->LoadModel("MyBoxRotate.gltf");
-	ModelManager::GetInstance()->LoadModel("simpleSkin.gltf");
-	ModelManager::GetInstance()->LoadModel("sneakWalk.gltf");
-	ModelManager::GetInstance()->LoadModel("walk.gltf");
-	ModelManager::GetInstance()->LoadModel("stop.gltf");
+	ModelManager::GetInstance()->LoadModel("simpleSkin",".gltf");
+	ModelManager::GetInstance()->LoadModel("sneakWalk",".gltf");
+	ModelManager::GetInstance()->LoadModel("walk",".gltf");
+	ModelManager::GetInstance()->LoadModel("stop", ".gltf");
+	ModelManager::GetInstance()->LoadModel("axis",".obj");
 
 
 	//camera = new Camera();
@@ -43,6 +44,10 @@ void GameScene::Initialize() {
 	skyBox->Initialize("resource/rostock_laage_airport_4k.dds");
 
 	worldTransform.Initialize();
+
+	obj = new Object3d();
+	obj->Initialize();
+	obj->SetModelFile("axis.obj");
 }
 
 void GameScene::Update() {
@@ -86,6 +91,8 @@ void GameScene::Update() {
 
 	//ImGui::End();
 #endif //  USE_IMGUI
+
+	worldTransform.UpdateMatrix();
 }
 
 void GameScene::Draw() {
@@ -93,14 +100,15 @@ void GameScene::Draw() {
 	Cubemap::GetInstance()->Command();
 	skyBox->Draw();
 
-	//スプライト描画処理(背景用)
-	SpriteCommon::GetInstance()->Command();
-
 
 	//モデル描画処理
-	Object3dCommon::GetInstance()->Command();
+	GLTFCommon::GetInstance()->Command();
 
 	testClass->Draw();
+	
+	//モデル描画処理
+	Object3dCommon::GetInstance()->Command();
+	obj->Draw(worldTransform);
 
 	//パーティクル描画処理
 	ParticleCommon::GetInstance()->Command();
@@ -116,4 +124,5 @@ void GameScene::Finalize() {
 	delete testClass;
 	delete particle;
 	delete skyBox;
+	delete obj;
 }

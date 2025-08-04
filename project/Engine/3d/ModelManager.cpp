@@ -20,45 +20,42 @@ void ModelManager::Initialize(DirectXCommon* dxCommon) {
 	modelCommon->Initialize(dxCommon);
 }
 
-void ModelManager::LoadModel(const std::string& filePath) {
-	if (models.contains(filePath)) {
+void ModelManager::LoadModel(const std::string& filePath, const std::string& objType) {
+	
+	std::string fileName = filePath + objType;
+	
+	//同じ名前でもオブジェクトタイプ違ければ作成される
+	if (objs.contains(fileName)) {
+		return;
+	}
+	if (glTFs.contains(fileName)) {
 		return;
 	}
 
-	std::string file = "/";
-	std::string fileType = "";
-	bool typeMode = false;
-
-	for (char value : filePath) {
-		if (value != '.' && !typeMode) {
-			file += value;    //保管しているファイル名
-		}
-		else {
-			fileType += value;//.obj / .gltf
-			typeMode = true;
-		}
+	if (objType == ".obj") {
+		std::unique_ptr<Model_obj> model = std::make_unique<Model_obj>();
+		model->Initialize(modelCommon, "resource", "Object/" + filePath, fileName);//model,file名,OBJ本体
+		objs.insert(std::make_pair(fileName, std::move(model)));
 	}
-	file += "/";
-
-	std::unique_ptr<Model> model = std::make_unique<Model>();
-
-	if (fileType == ".obj") {
-		model->SetObjType(ObjectType::obj);
+	else if (objType == ".gltf") {
+		std::unique_ptr<Model_glTF> model = std::make_unique<Model_glTF>();
+		model->Initialize(modelCommon, "resource", "Object/" + filePath + "/" + fileName);//model,file名,OBJ本体
+		glTFs.insert(std::make_pair(fileName, std::move(model)));
 	}
-	else if (fileType == ".gltf") {
-		model->SetObjType(ObjectType::gltf);
-	}
-
-	model->Initialize(modelCommon,"resource", "Object" + file + filePath);//model,file名,OBJ本体
-
-
-	models.insert(std::make_pair(filePath, std::move(model)));
-
 }
 
-Model* ModelManager::FindModel(const std::string& filePath) {
-	if(models.contains(filePath)){
-		return models.at(filePath).get();
+Model_glTF* ModelManager::FindModel_gltf(const std::string& filePath) {
+	if(glTFs.contains(filePath)){
+		return glTFs.at(filePath).get();
+	}
+
+	//ファイル一致なし
+	return nullptr;
+}
+
+Model_obj* ModelManager::FindModel_obj(const std::string& filePath) {
+	if (objs.contains(filePath)) {
+		return objs.at(filePath).get();
 	}
 
 	//ファイル一致なし

@@ -45,7 +45,7 @@
     <ClCompile Include="Engine\2d\SpriteCommon.cpp">
       <Filter>ソース ファイル\Engine\2d</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Model.cpp">
+    <ClCompile Include="Engine\3d\Model__glTF.cpp">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\ModelCommon.cpp">
@@ -57,10 +57,10 @@
     <ClCompile Include="Engine\2d\TextureManager.cpp">
       <Filter>ソース ファイル\Engine\2d</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Object3d.cpp">
+    <ClCompile Include="Engine\3d\Object_glTF.cpp">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Object3dCommon.cpp">
+    <ClCompile Include="Engine\3d\GLTFCommon.cpp">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\DirectXCommon.cpp">
@@ -147,6 +147,15 @@
     <ClCompile Include="Cubemap.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3d\Model_obj.cpp">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3d\Object3d.cpp">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3d\Object3dCommon.cpp">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\2d\Sprite.h">
@@ -158,7 +167,7 @@
     <ClInclude Include="Engine\2d\TextureManager.h">
       <Filter>ソース ファイル\Engine\2d</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3d\Model.h">
+    <ClInclude Include="Engine\3d\Model_glTF.h">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3d\ModelCommon.h">
@@ -167,10 +176,10 @@
     <ClInclude Include="Engine\3d\ModelManager.h">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3d\Object3d.h">
+    <ClInclude Include="Engine\3d\Object_glTF.h">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3d\Object3dCommon.h">
+    <ClInclude Include="Engine\3d\GLTFCommon.h">
       <Filter>ソース ファイル\Engine\3d</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\D3DResorceLeakChecker.h">
@@ -269,6 +278,15 @@
     <ClInclude Include="Cubemap.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3d\Model_obj.h">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3d\Object3d.h">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3d\Object3dCommon.h">
+      <Filter>ソース ファイル\Engine\3d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Particle.hlsli">
@@ -300,7 +318,7 @@
     <FxCompile Include="resource\shaders\Sprite.VS.hlsl">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="resource\shaders\Object3d.PS.hlsl">
+    <FxCompile Include="resource\shaders\Object3d_glTF.PS.hlsl">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
     <FxCompile Include="resource\shaders\SkinningObject3d.VS.hlsl">
@@ -313,6 +331,9 @@
       <Filter>リソース ファイル</Filter>
     </FxCompile>
     <FxCompile Include="resource\shaders\Skybox.VS.hlsl">
+      <Filter>リソース ファイル</Filter>
+    </FxCompile>
+    <FxCompile Include="resource\shaders\Object3d.PS.hlsl">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>

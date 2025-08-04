@@ -1,29 +1,29 @@
-#include "Object3dCommon.h"
+#include "GLTFCommon.h"
 
 using namespace Logger;
 
-Object3dCommon* Object3dCommon::instance = nullptr;
+GLTFCommon* GLTFCommon::instance = nullptr;
 
-uint32_t Object3dCommon::kSRVIndexTop = 1;
+uint32_t GLTFCommon::kSRVIndexTop = 1;
 
-Object3dCommon* Object3dCommon::GetInstance() {
+GLTFCommon* GLTFCommon::GetInstance() {
 	if (instance == nullptr) {
-		instance = new Object3dCommon;
+		instance = new GLTFCommon;
 	}
 	return instance;
 }
-void Object3dCommon::Finalize() {
+void GLTFCommon::Finalize() {
 	delete instance;
 	instance = nullptr;
 }
-void Object3dCommon::Initialize(DirectXCommon* dxCommon) {
+void GLTFCommon::Initialize(DirectXCommon* dxCommon) {
 	dxCommon_ = dxCommon;
 	
 	GraphicsPipeline();
 }
 
 
-void Object3dCommon::RootSignature() {
+void GLTFCommon::RootSignature() {
 
 	//RootSignature
 	descriptionRootSignature.Flags =
@@ -34,6 +34,10 @@ void Object3dCommon::RootSignature() {
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	descriptorRangeIBL[0].BaseShaderRegister = 1;
+	descriptorRangeIBL[0].NumDescriptors = 1;
+	descriptorRangeIBL[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeIBL[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//RootParameter作成__
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -70,6 +74,19 @@ void Object3dCommon::RootSignature() {
 	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;//plxelshader
 	rootParameters[6].Descriptor.ShaderRegister = 4;//レジスタ番号
 
+	//skinning t0
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRange;
+	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+
+	//IBL t1
+	rootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[8].DescriptorTable.pDescriptorRanges = descriptorRangeIBL;
+	rootParameters[8].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeIBL);
+
+
 	//2でまとめる
 
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -85,7 +102,7 @@ void Object3dCommon::RootSignature() {
 
 }
 
-void Object3dCommon::GraphicsPipeline() {
+void GLTFCommon::GraphicsPipeline() {
 
 	RootSignature();
 
@@ -104,7 +121,7 @@ void Object3dCommon::GraphicsPipeline() {
 
 
 	//InputLayout
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[4] = {};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[6] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -112,7 +129,7 @@ void Object3dCommon::GraphicsPipeline() {
 
 	inputElementDescs[1].SemanticName = "TEXCOORD";
 	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;	
 	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
 	inputElementDescs[2].SemanticName = "NORMAL";
@@ -124,6 +141,19 @@ void Object3dCommon::GraphicsPipeline() {
 	inputElementDescs[3].SemanticIndex = 0;
 	inputElementDescs[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[3].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+	inputElementDescs[4].SemanticName = "WEIGHT";
+	inputElementDescs[4].SemanticIndex = 0;
+	inputElementDescs[4].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	inputElementDescs[4].InputSlot = 1; //一番目のshotのVBVだと伝える
+	inputElementDescs[4].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+	inputElementDescs[5].SemanticName = "INDEX";
+	inputElementDescs[5].SemanticIndex = 0;
+	inputElementDescs[5].Format = DXGI_FORMAT_R32G32B32A32_SINT;
+	inputElementDescs[5].InputSlot = 1; //一番目のshotのVBVだと伝える
+	inputElementDescs[5].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs;
@@ -142,10 +172,10 @@ void Object3dCommon::GraphicsPipeline() {
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
 	//shaderのコンパイラ
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resource/shaders/Object3d.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxCommon_->CompileShader(L"resource/shaders/SkinningObject3d.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resource/shaders/Object3d.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxCommon_->CompileShader(L"resource/shaders/Object3d_glTF.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 
@@ -180,7 +210,7 @@ void Object3dCommon::GraphicsPipeline() {
 	assert(SUCCEEDED(hr));
 }
 
-void Object3dCommon::Command() {
+void GLTFCommon::Command() {
 	dxCommon_->GetCommandList()->SetGraphicsRootSignature(rootSignature.Get());
 	dxCommon_->GetCommandList()->SetPipelineState(graphicsPipelineState.Get());
 	dxCommon_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

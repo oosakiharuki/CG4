@@ -7,28 +7,18 @@
 #include <sstream>
 #include "ModelManager.h"
 #include <numbers>
-#include "Logger.h"
 
 using namespace MyMath;
 
-Object3d::Object3d(){}
-
-Object3d::~Object3d(){
-	for (auto it : debugSphere) {
-		delete it;
-	}
-	debugSphere.clear();
-}
-
 void Object3d::Initialize() {
-	this->object3dCommon = Object3dCommon::GetInstance();
+	this->object3dCommon = Object3dCommon::GetInstance();	
 	this->camera = object3dCommon->GetDefaultCamera();
 	wvpResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(TransformationMatrix));
 	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
-
-
+	
+	
 	wvpData->World = MakeIdentity4x4();
-	wvpData->WVP = MakeIdentity4x4();
+	wvpData->WVP= MakeIdentity4x4();
 
 	//ライト用のリソース
 	directionalLightSphereResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(DirectionalLight));
@@ -37,11 +27,11 @@ void Object3d::Initialize() {
 	//色の設定
 	directionalLightSphereData->color = { 1.0f,1.0f,1.0f,1.0f };
 	directionalLightSphereData->direction = { 0.0f,-1.0f,0.0f };
-	directionalLightSphereData->intensity = 0.5f;//明るすぎたため
+	directionalLightSphereData->intensity = 0.0f;
 
 
 	//Phong Reflection Model
-	cameraResource = object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(CameraForGPU));
+	cameraResource =object3dCommon->GetDirectXCommon()->CreateBufferResource(sizeof(CameraForGPU));
 	cameraResource->Map(0, nullptr, reinterpret_cast<void**>(&cameraData));
 
 	cameraData->worldPosition = { 0,0,0 };
@@ -53,7 +43,7 @@ void Object3d::Initialize() {
 	//設定
 	pointLightData->color = { 1.0f,1.0f,1.0f,1.0f };
 	pointLightData->position = { 0.0f,2.0f,0.0f };
-	pointLightData->intensity = 0.0f;
+	pointLightData->intensity = 1.0f;
 	pointLightData->radius = 5.0f;
 	pointLightData->decay = 1.0f;
 
@@ -86,52 +76,44 @@ void Object3d::Initialize() {
 
 }
 
-void Object3d::Update(const WorldTransform& worldTransform) {
+void Object3d::Update() {
 
-	//作るときはフレームレートを60FPSにする
-	animationTime += 1.0f / 60.0f;
-	animationTime = std::fmod(animationTime, animation.duration);
-	
-	if (isChange) {
-		changeTime += 1.0f / 60.0f;
-		if (changeTime >= preAnimation.duration) {
-			isChange = false;
-			changeTime = 0;
-		}
-		else {	
-			Interpolation(skeleton, preAnimation, animation, changeTime);
-		}
-	}
-	else {
-		ApplyAnimation(skeleton, animation, animationTime);
-	}
-
-	SkeletonUpdate(skeleton,worldTransform.matWorld_ * MakeTranslateMatrix(Vector3(0,0,-0.2f)));
-	SkinClusterUpdate(skinCluster, skeleton);
-
-
-
-	Matrix4x4 skaletonSpaceMatrix;
+	//モデル
+	Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 	Matrix4x4 WorldViewProjectionMatrix;
 	if (camera) {
 		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
-		WorldViewProjectionMatrix = worldTransform.matWorld_ * projectionMatrix;
+		WorldViewProjectionMatrix = Multiply(worldMatrix, projectionMatrix);
+	}
+	else {
+		WorldViewProjectionMatrix = worldMatrix;
+	}
+	wvpData->World = worldMatrix;
+	wvpData->WVP = WorldViewProjectionMatrix;
+
+	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
+
+
+}
+
+
+void Object3d::Draw(const WorldTransform& worldTransform) {
+	Matrix4x4 WorldViewProjectionMatrix;
+	if (camera) {
+		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
+		WorldViewProjectionMatrix = Multiply(worldTransform.matWorld_, projectionMatrix);
 	}
 	else {
 		WorldViewProjectionMatrix = worldTransform.matWorld_;
 	}
-	Matrix4x4 JointWorldMatrix = skaletonSpaceMatrix * worldTransform.matWorld_;
 
-	wvpData->World = JointWorldMatrix * worldTransform.matWorld_;
-	wvpData->World = modelData.rootNode.localMatrix * worldTransform.matWorld_;
+	wvpData->World = worldTransform.matWorld_;
 	//wvpData->World = worldMatrix;
 	wvpData->WVP = WorldViewProjectionMatrix;
 
 	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
-}
 
 
-void Object3d::Draw() {
 	//モデル
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightSphereResource->GetGPUVirtualAddress());
@@ -141,20 +123,26 @@ void Object3d::Draw() {
 	if (model) {
 		model->Draw();
 	}
-
-#ifdef _DEBUG
-	DebugWireframes::GetInstance()->Command();
-
-	for (auto it : debugSphere) {
-		it->Draw();
-	}
-
-	Object3dCommon::GetInstance()->Command();
-#endif // _DEBUG
-
 }
 
-void Object3d::Draw(const std::string& textureData) {
+void Object3d::Draw(const WorldTransform& worldTransform, const std::string& textureData) {
+
+	Matrix4x4 WorldViewProjectionMatrix;
+	if (camera) {
+		Matrix4x4 projectionMatrix = camera->GetViewProjectionMatrix();
+		WorldViewProjectionMatrix = Multiply(worldTransform.matWorld_, projectionMatrix);
+	}
+	else {
+		WorldViewProjectionMatrix = worldTransform.matWorld_;
+	}
+
+	wvpData->World = worldTransform.matWorld_;
+	//wvpData->World = worldMatrix;
+	wvpData->WVP = WorldViewProjectionMatrix;
+
+	directionalLightSphereData->direction = Normalize(directionalLightSphereData->direction);
+
+
 	//モデル
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 	object3dCommon->GetDirectXCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(3, directionalLightSphereResource->GetGPUVirtualAddress());
@@ -164,184 +152,14 @@ void Object3d::Draw(const std::string& textureData) {
 	if (model) {
 		model->Draw(textureData);
 	}
-
-#ifdef _DEBUG
-	DebugWireframes::GetInstance()->Command();
-
-	for (auto it : debugSphere) {
-		it->Draw();
-	}
-
-	Object3dCommon::GetInstance()->Command();
-#endif // _DEBUG
-
 }
 
 void Object3d::SetModelFile(const std::string& filePath) {
-
-	model = ModelManager::GetInstance()->FindModel(filePath);
-	material = model->GetMaterial();
-	modelData = model->GetModelData();
-	animation = model->GetAnimationData();
-	skeleton = model->GetSkeleton();
-	skinCluster = model->GetSkinCluster();
-
-	//デバッグワイヤーフレーム
-	//親ノード
-	//SetWireframe();
-	//子ノード
-#ifdef _DEBUG
-	for (uint32_t childIndex = 0; childIndex < skeleton.joints.size(); ++childIndex) {
-		SetWireframe();
-	}
-
-#endif // _DEBUG
-	SkeletonUpdate(skeleton);
-	SkinClusterUpdate(skinCluster,skeleton);
-
+	model = ModelManager::GetInstance()->FindModel_obj(filePath);
 }
-
-void Object3d::SetObjFile(const std::string& filePath) {
-	model = ModelManager::GetInstance()->FindModel(filePath);
-	modelData = model->GetModelData();
-}
-
-
 
 void Object3d::LightSwitch(bool isLight) {
 	if (model) {
 		model->LightOn(isLight);
-	}
-}
-
-//環境マップのファイルパス
-void Object3d::SetEnvironment(const std::string& filePath) {
-	if (model) {
-		model->SetEnvironment(filePath);
-	}
-}
-
-void Object3d::ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime) {
-	for (Joint& joint : skeleton.joints) {
-		//jointにアニメーションがある場合
-		if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
-			const NodeAnimation& rootNodeAnimation = (*it).second;
-			joint.transform.translate = CalculateValue(rootNodeAnimation.translate, animationTime);
-			joint.transform.rotate = CalculateValueQuaternion(rootNodeAnimation.rotate, animationTime);
-			joint.transform.scale = CalculateValue(rootNodeAnimation.scale, animationTime);
-
-		}
-	}
-}
-
-
-void Object3d::SkeletonUpdate(Skeleton& skeleton) {
-	for (Joint& joint : skeleton.joints) {
-		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
-		if (joint.parent) {
-			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
-		}
-		else {
-			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
-		}
-	}
-}
-
-void Object3d::SkeletonUpdate(Skeleton& skeleton, const Matrix4x4& matWorld) {
-	int i = 0;//一から順番に
-	for (Joint& joint : skeleton.joints) {
-		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
-#ifdef _DEBUG
-		debugSphere[i]->SetColor(Vector4(1, 1, 0, 1));//わかりやすい色
-#endif // _DEBUG
-		if (joint.parent) {
-			joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix;//Jointに親がいるとき(子)
-#ifdef _DEBUG
-			debugSphere[i]->Update(joint.localMatrix * skeleton.joints[*joint.parent].skeletonSpaceMatrix * matWorld);
-#endif // _DEBUG
-		}
-		else {
-			joint.skeletonSpaceMatrix = joint.localMatrix;//jointに親がいない場合(親)
- #ifdef _DEBUG	
-			debugSphere[i]->Update(joint.localMatrix * matWorld);
-#endif // _DEBUG
-		}
-		i++;
-	}
-}
-
-void Object3d::SkinClusterUpdate(SkinCluster& skinCluster, const Skeleton& skeleton) {
-	for (size_t jointIndex = 0; jointIndex < skeleton.joints.size(); ++jointIndex) {
-		assert(jointIndex < skinCluster.inverseBindPoseMatrices.size());
-		skinCluster.mappedPalette[jointIndex].skeletonSpaceMatrix =
-			skinCluster.inverseBindPoseMatrices[jointIndex] * skeleton.joints[jointIndex].skeletonSpaceMatrix;
-		skinCluster.mappedPalette[jointIndex].skeletonSpaceInverseTransposeMatrix =
-			Transpose(Inverse(skinCluster.mappedPalette[jointIndex].skeletonSpaceMatrix));
-	}
-}
-
-void Object3d::SetWireframe() {
-#ifdef _DEBUG
-	SphereModel* sphere = new SphereModel();
-	sphere->Initialize();
-
-	debugSphere.push_back(sphere);
-#endif // _DEBUG
-}
-
-void Object3d::ChangeAnimation(const std::string& filePath) {
-	
-	//モデルが同じならすぐにリターン
-	if (model == ModelManager::GetInstance()->FindModel(filePath)) {
-		return;
-	}
-	
-	//変更前のアニメーションデータ
-	preAnimation = animation;
-
-	//変更先のアニメーションデータ
-	model = ModelManager::GetInstance()->FindModel(filePath);
-	modelData = model->GetModelData();
-	animation = model->GetAnimationData();
-	skeleton = model->GetSkeleton();
-	skinCluster = model->GetSkinCluster();
-
-	//animationTimeを1.0f/60.0fに
-	//Sleapなどで0より小さい値を出さないようにする
-	//はじめは少しカクつくが、アニメーション補間が終えた後がスムーズ
-	changeTime += 1.0f / 60.0f;
-	animationTime = changeTime;
-
-	Interpolation(skeleton, animation, preAnimation,changeTime);
-	SkeletonUpdate(skeleton);
-	SkinClusterUpdate(skinCluster, skeleton);
-	
-	//アニメーション補間中に変更があった時
-	if (isChange) {
-		changeTime = 0.9f - changeTime;
-	}
-	
-	isChange = true;
-
-	//Sleapなどで1より大きい値を出さないようにする
-	if (preAnimation.duration > 1.0f) {
-		preAnimation.duration = 0.9f;
-	}
-
-}
-
-void Object3d::Interpolation(Skeleton& skeleton, const Animation& animation, const Animation& nextAnimation, float animationTime) {
-	for (Joint& joint : skeleton.joints) {
-		//jointにアニメーションがある場合
-		if (auto itA = animation.nodeAnimations.find(joint.name); itA != animation.nodeAnimations.end()) {
-			if (auto itB = nextAnimation.nodeAnimations.find(joint.name); itB != nextAnimation.nodeAnimations.end()) {
-				const NodeAnimation& rootNodeAnimation = (*itA).second;
-				const NodeAnimation& nextRootNodeAnimation = (*itB).second;
-				joint.transform.translate = InterpolationValue(nextRootNodeAnimation.translate,rootNodeAnimation.translate, animationTime);//nextと逆にする()
-				joint.transform.rotate = InterpolationValueQuaternion(rootNodeAnimation.rotate, nextRootNodeAnimation.rotate, animationTime);
-				joint.transform.scale = InterpolationValue(rootNodeAnimation.scale, nextRootNodeAnimation.scale, animationTime);
-
-			}
-		}
 	}
 }

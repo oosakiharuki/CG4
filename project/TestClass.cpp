@@ -4,6 +4,7 @@
 #include "Input.h"
 
 #include "Object3dCommon.h"
+#include "GLTFCommon.h"
 #include "ParticleCommon.h"
 #include <Cubemap.h>
 
@@ -29,6 +30,7 @@ void TestClass::Init() {
 	camera->SetTranslate(cameraTranslate);
 
 	Object3dCommon::GetInstance()->SetDefaultCamera(camera);
+	GLTFCommon::GetInstance()->SetDefaultCamera(camera);
 	ParticleCommon::GetInstance()->SetDefaultCamera(camera);
 	DebugWireframes::GetInstance()->SetDefaultCamera(camera);
 	Cubemap::GetInstance()->SetDefaultCamera(camera);
@@ -36,12 +38,12 @@ void TestClass::Init() {
 	worldTransform_.Initialize();
 	worldTransform2_.Initialize();
 
-	object_ = new Object3d();
+	object_ = new Object_glTF();
 	object_->Initialize();
 	object_->SetModelFile("sneakWalk.gltf");
 	object_->SetEnvironment("resource/rostock_laage_airport_4k.dds");
 
-	object2_ = new Object3d();
+	object2_ = new Object_glTF();
 	object2_->Initialize();
 	object2_->SetModelFile("simpleSkin.gltf");
 	object2_->SetEnvironment("resource/rostock_laage_airport_4k.dds");

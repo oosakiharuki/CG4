@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Sprite.h"
-#include "Object3d.h"
+#include "Object_glTF.h"
 #include "particle.h" 
 #include "Audio.h"
 #include "MyMath.h"
@@ -10,6 +10,8 @@
 
 #include "TestClass.h"
 #include "BoxModel.h"
+
+#include "Object3d.h"
 
 class GameScene : public IScene {
 public:
@@ -56,4 +58,6 @@ private:
 
 	BoxModel* skyBox = nullptr;
 	WorldTransform worldTransform;
+
+	Object3d* obj = nullptr;
 };

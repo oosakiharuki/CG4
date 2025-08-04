@@ -32,6 +32,9 @@ void Framework::Initialize() {
 	object3dCommon = Object3dCommon::GetInstance();
 	object3dCommon->Initialize(dxCommon);
 
+	glTFCommon = GLTFCommon::GetInstance();
+	glTFCommon->Initialize(dxCommon);
+
 
 	modelCommon = new ModelCommon();
 	modelCommon->Initialize(dxCommon);
@@ -82,6 +85,7 @@ void Framework::Finalize() {
 
 	spriteCommon->Finalize();	
 	object3dCommon->Finalize();
+	glTFCommon->Finalize();
 	delete modelCommon;
 	
 	particleCommon->Finalize();

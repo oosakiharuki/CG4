@@ -108,6 +108,11 @@ struct SkinCluster {
 };
 
 struct ModelData {
+	std::vector<VertexData> vertices;
+	MaterialData material;
+};
+
+struct ModelData_glTF {
 	std::map<std::string, JointWeightData> skinClusterDeta;
 	std::vector<VertexData> vertices;
 	std::vector<uint32_t> indices;

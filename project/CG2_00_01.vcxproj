@@ -112,6 +112,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DebugWireframes.cpp" />
     <ClCompile Include="Engine\2d\ImGuiManager.cpp" />
     <ClCompile Include="Engine\3d\Camera.cpp" />
+    <ClCompile Include="Engine\3d\Model_obj.cpp" />
+    <ClCompile Include="Engine\3d\Object3d.cpp" />
+    <ClCompile Include="Engine\3d\Object3dCommon.cpp" />
     <ClCompile Include="Engine\3d\Particle.cpp" />
     <ClCompile Include="Engine\3d\ParticleCommon.cpp" />
     <ClCompile Include="Engine\3d\ParticleEmitter.cpp" />
@@ -132,12 +135,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Model.cpp" />
+    <ClCompile Include="Engine\3d\Model__glTF.cpp" />
     <ClCompile Include="Engine\3d\ModelCommon.cpp" />
     <ClCompile Include="Engine\3d\ModelManager.cpp" />
     <ClCompile Include="Engine\math\MyMath.cpp" />
-    <ClCompile Include="Engine\3d\Object3d.cpp" />
-    <ClCompile Include="Engine\3d\Object3dCommon.cpp" />
+    <ClCompile Include="Engine\3d\Object_glTF.cpp" />
+    <ClCompile Include="Engine\3d\GLTFCommon.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteCommon.cpp" />
     <ClCompile Include="Engine\base\StringUtility.cpp" />
@@ -157,6 +160,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DebugWireframes.h" />
     <ClInclude Include="Engine\2d\ImGuiManager.h" />
     <ClInclude Include="Engine\3d\Camera.h" />
+    <ClInclude Include="Engine\3d\Model_obj.h" />
+    <ClInclude Include="Engine\3d\Object3d.h" />
+    <ClInclude Include="Engine\3d\Object3dCommon.h" />
     <ClInclude Include="Engine\3d\Particle.h" />
     <ClInclude Include="Engine\3d\ParticleCommon.h" />
     <ClInclude Include="Engine\3d\ParticleEmitter.h" />
@@ -170,14 +176,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\scene\GameScene.h" />
     <ClInclude Include="Engine\input\Input.h" />
     <ClInclude Include="Engine\base\Logger.h" />
-    <ClInclude Include="Engine\3d\Model.h" />
+    <ClInclude Include="Engine\3d\Model_glTF.h" />
     <ClInclude Include="Engine\3d\ModelCommon.h" />
     <ClInclude Include="Engine\3d\ModelManager.h" />
     <ClInclude Include="Engine\scene\IScene.h" />
     <ClInclude Include="Engine\math\MyMath.h" />
     <ClInclude Include="Engine\math\Matrix4x4.h" />
-    <ClInclude Include="Engine\3d\Object3d.h" />
-    <ClInclude Include="Engine\3d\Object3dCommon.h" />
+    <ClInclude Include="Engine\3d\Object_glTF.h" />
+    <ClInclude Include="Engine\3d\GLTFCommon.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteCommon.h" />
     <ClInclude Include="Engine\base\StringUtility.h" />
@@ -221,6 +227,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\Object3d.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resource\shaders\Object3d_glTF.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

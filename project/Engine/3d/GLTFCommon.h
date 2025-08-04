@@ -2,9 +2,9 @@
 #include "DirectXCommon.h"
 class Camera;
 
-class Object3dCommon {
+class GLTFCommon {
 public:
-	static Object3dCommon* GetInstance();
+	static GLTFCommon* GetInstance();
 	void Finalize();
 
 	void Initialize(DirectXCommon* dxCommon);
@@ -25,7 +25,8 @@ private:
 	//RootSignature
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	D3D12_ROOT_PARAMETER rootParameters[7] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRangeIBL[1] = {};//iamge_based_lighting
+	D3D12_ROOT_PARAMETER rootParameters[9] = {};
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 
 
@@ -37,12 +38,12 @@ private:
 
 	Camera* defaultCamera = nullptr;
 
-	static Object3dCommon* instance;
+	static GLTFCommon* instance;
 
-	Object3dCommon() = default;
-	~Object3dCommon() = default;
-	Object3dCommon(Object3dCommon&) = default;
-	Object3dCommon& operator=(Object3dCommon&) = default;
+	GLTFCommon() = default;
+	~GLTFCommon() = default;
+	GLTFCommon(GLTFCommon&) = default;
+	GLTFCommon& operator=(GLTFCommon&) = default;
 
 
 	static uint32_t kSRVIndexTop;
